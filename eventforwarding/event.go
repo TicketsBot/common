@@ -6,15 +6,17 @@ import (
 )
 
 type Event struct {
-	BotToken string          `json:"bot_token"`
-	BotId    uint64          `json:"bot_id"`
-	Data     json.RawMessage `json:"data"`
+	BotToken  string          `json:"bot_token"`
+	BotId     uint64          `json:"bot_id"`
+	EventType string          `json:"event_type"`
+	Data      json.RawMessage `json:"data"`
 }
 
 const key = "tickets:events"
 
 func ForwardEvent(redis *redis.Client, data Event) error {
-	marshalled, err := json.Marshal(data); if err != nil {
+	marshalled, err := json.Marshal(data)
+	if err != nil {
 		return err
 	}
 
