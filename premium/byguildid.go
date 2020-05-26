@@ -6,6 +6,16 @@ import (
 )
 
 func (p *PremiumLookupClient) GetTierByGuildId(guildId uint64, includeVoting bool, botToken string, ratelimiter *ratelimit.Ratelimiter) (tier PremiumTier) {
+	// check for cached tier by guild ID
+	cached, err := p.getCachedTier(guildId)
+	if err == nil {
+		if includeVoting || !cached.FromVoting {
+			if tier = PremiumTier(cached.Tier); tier > None {
+				return
+			}
+		}
+	}
+
 	// retrieve guild object
 	guild, found := p.cache.GetGuild(guildId, false)
 	if !found {

@@ -13,8 +13,10 @@ type cachedTier struct {
 
 const timeout = time.Minute * 5
 
-func (p *PremiumLookupClient) getCachedTier(userId uint64) (tier cachedTier, err error) {
-	key := fmt.Sprintf("premium:%d", userId)
+// Functions can take a user ID or guild ID
+
+func (p *PremiumLookupClient) getCachedTier(id uint64) (tier cachedTier, err error) {
+	key := fmt.Sprintf("premium:%d", id)
 
 	res, err := p.redis.Get(key).Result(); if err != nil {
 		return
@@ -24,8 +26,8 @@ func (p *PremiumLookupClient) getCachedTier(userId uint64) (tier cachedTier, err
 	return
 }
 
-func (p *PremiumLookupClient) setCachedTier(userId uint64, data cachedTier) (err error) {
-	key := fmt.Sprintf("premium:%d", userId)
+func (p *PremiumLookupClient) setCachedTier(id uint64, data cachedTier) (err error) {
+	key := fmt.Sprintf("premium:%d", id)
 
 	marshalled, err := json.Marshal(data); if err != nil {
 		return

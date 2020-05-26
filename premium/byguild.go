@@ -3,9 +3,18 @@ package premium
 import "github.com/rxdn/gdl/objects/guild"
 
 func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild, includeVoting bool) (tier PremiumTier) {
+	var fromVoting bool
+
+	defer func() {
+		go p.setCachedTier(guild.Id, cachedTier{
+			Tier:       int(tier),
+			FromVoting: fromVoting,
+		})
+	}()
+
 	// check patreon + votes
 	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
-	if tier = p.GetTierByUser(guild.OwnerId, includeVoting); tier > None {
+	if tier, fromVoting = p.getTierByUser(guild.OwnerId, includeVoting); tier > None {
 		return
 	}
 

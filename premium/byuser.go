@@ -5,17 +5,21 @@ import (
 )
 
 func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (tier PremiumTier) {
+	tier, _ = p.getTierByUser(userId, includeVoting)
+	return
+}
+
+func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (tier PremiumTier, fromVoting bool) {
 	// check for cached result
 	cached, err := p.getCachedTier(userId)
 	if err == nil {
 		if includeVoting || !cached.FromVoting {
 			if tier = PremiumTier(cached.Tier); tier > None {
+				fromVoting = cached.FromVoting
 				return
 			}
 		}
 	}
-
-	var fromVoting bool
 
 	defer func() {
 		// cache result
@@ -38,7 +42,7 @@ func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (
 		}
 	}
 
-	return None
+	return None, false
 }
 
 func (p *PremiumLookupClient) hasVoted(userId uint64) (PremiumTier, error) {
