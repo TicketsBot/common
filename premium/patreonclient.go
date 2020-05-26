@@ -36,7 +36,7 @@ func (p *PatreonClient) getTier(userId uint64) (PremiumTier, error) {
 	var data proxyResponse
 	defer res.Body.Close()
 
-	if err := json.NewDecoder(res.Body); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
 		return None, err
 	}
 
