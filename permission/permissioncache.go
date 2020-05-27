@@ -9,7 +9,7 @@ import (
 
 const timeout = time.Minute * 5
 
-func GetPermissionLevel(redis *redis.Client, guildId, userId uint64) (PermissionLevel, bool) {
+func GetCachedPermissionLevel(redis *redis.Client, guildId, userId uint64) (PermissionLevel, bool) {
 	key := fmt.Sprintf("permissions:%d:%d", guildId, userId)
 	res, err := redis.Get(key).Result(); if err != nil {
 		return Everyone, false
@@ -22,7 +22,7 @@ func GetPermissionLevel(redis *redis.Client, guildId, userId uint64) (Permission
 	return PermissionLevel(parsed), true
 }
 
-func SetPermissionLevel(redis *redis.Client, guildId, userId uint64, level PermissionLevel) error {
+func SetCachedPermissionLevel(redis *redis.Client, guildId, userId uint64, level PermissionLevel) error {
 	key := fmt.Sprintf("permissions:%d:%d", guildId, userId)
 	return redis.Set(key, level.Int(), timeout).Err()
 }
