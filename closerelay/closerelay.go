@@ -6,16 +6,18 @@ import (
 )
 
 type TicketClose struct {
-	GuildId  uint64 `json:"guild_id"`
-	TicketId int    `json:"ticket_id"`
-	UserId   uint64 `json:"user_id"`
-	Reason   string `json:"reason"`
+	GuildId        uint64 `json:"guild_id"`
+	TicketId       int    `json:"ticket_id"`
+	UserId         uint64 `json:"user_id"`
+	Reason         string `json:"reason"`
+	PublicBotToken string `json:"public_bot_token"`
 }
 
 const key = "tickets:close"
 
 func Publish(redis *redis.Client, data TicketClose) error {
-	marshalled, err := json.Marshal(data); if err != nil {
+	marshalled, err := json.Marshal(data)
+	if err != nil {
 		return err
 	}
 	return redis.RPush(key, string(marshalled)).Err()
