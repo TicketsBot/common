@@ -23,7 +23,7 @@ func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (
 
 	defer func() {
 		// cache result
-		go p.setCachedTier(userId, cachedTier{
+		go p.SetCachedTier(userId, cachedTier{
 			Tier:       int(tier),
 			FromVoting: fromVoting,
 		})

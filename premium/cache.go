@@ -26,7 +26,7 @@ func (p *PremiumLookupClient) getCachedTier(id uint64) (tier cachedTier, err err
 	return
 }
 
-func (p *PremiumLookupClient) setCachedTier(id uint64, data cachedTier) (err error) {
+func (p *PremiumLookupClient) SetCachedTier(id uint64, data cachedTier) (err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
 	marshalled, err := json.Marshal(data); if err != nil {
