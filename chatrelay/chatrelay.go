@@ -1,4 +1,4 @@
-package common
+package chatrelay
 
 import (
 	"encoding/json"
