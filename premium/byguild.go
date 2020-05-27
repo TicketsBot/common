@@ -6,7 +6,7 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild, includeVoting bo
 	var fromVoting bool
 
 	defer func() {
-		go p.SetCachedTier(guild.Id, cachedTier{
+		go p.SetCachedTier(guild.Id, CachedTier{
 			Tier:       int(tier),
 			FromVoting: fromVoting,
 		})

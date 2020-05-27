@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type cachedTier struct {
+type CachedTier struct {
 	Tier       int    `json:"tier"`
 	FromVoting bool   `json:"from_voting"`
 }
@@ -15,7 +15,7 @@ const timeout = time.Minute * 5
 
 // Functions can take a user ID or guild ID
 
-func (p *PremiumLookupClient) getCachedTier(id uint64) (tier cachedTier, err error) {
+func (p *PremiumLookupClient) getCachedTier(id uint64) (tier CachedTier, err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
 	res, err := p.redis.Get(key).Result(); if err != nil {
@@ -26,7 +26,7 @@ func (p *PremiumLookupClient) getCachedTier(id uint64) (tier cachedTier, err err
 	return
 }
 
-func (p *PremiumLookupClient) SetCachedTier(id uint64, data cachedTier) (err error) {
+func (p *PremiumLookupClient) SetCachedTier(id uint64, data CachedTier) (err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
 	marshalled, err := json.Marshal(data); if err != nil {
