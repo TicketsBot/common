@@ -10,17 +10,17 @@ import (
 
 const timeout = time.Minute * 5
 
-func GetPermissionLevel(redis *redis.Client, member member.Member, guildId uint64) PermissionLevel {
+func GetPermissionLevel(redis *redis.Client, member member.Member, guildId uint64) (PermissionLevel, bool) {
 	key := fmt.Sprintf("permissions:%d:%d", guildId, member.User.Id)
 	res, err := redis.Get(key).Result(); if err != nil {
-		return Everyone
+		return Everyone, false
 	}
 
 	parsed, err := strconv.Atoi(res); if err != nil {
-		return Everyone
+		return Everyone, false
 	}
 
-	return PermissionLevel(parsed)
+	return PermissionLevel(parsed), true
 }
 
 func SetPermissionLevel(redis *redis.Client, member member.Member, guildId uint64, level PermissionLevel) error {
