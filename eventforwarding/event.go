@@ -6,12 +6,13 @@ import (
 )
 
 type Event struct {
-	BotToken  string          `json:"bot_token"`
-	BotId     uint64          `json:"bot_id"`
-	ShardId   int             `json:"shard_id"`
-	EventType string          `json:"event_type"`
-	Data      json.RawMessage `json:"data"`
-	Extra     Extra           `json:"extra"`
+	BotToken     string          `json:"bot_token"`
+	BotId        uint64          `json:"bot_id"`
+	IsWhitelabel bool            `json:"is_whitelabel"`
+	ShardId      int             `json:"shard_id"`
+	EventType    string          `json:"event_type"`
+	Data         json.RawMessage `json:"data"`
+	Extra        Extra           `json:"extra"`
 }
 
 type Extra struct {
