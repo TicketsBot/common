@@ -8,6 +8,7 @@ import (
 type Event struct {
 	BotToken  string          `json:"bot_token"`
 	BotId     uint64          `json:"bot_id"`
+	ShardId   int             `json:"shard_id"`
 	EventType string          `json:"event_type"`
 	Data      json.RawMessage `json:"data"`
 }
