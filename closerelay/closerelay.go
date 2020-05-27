@@ -12,19 +12,24 @@ type TicketClose struct {
 	Reason   string `json:"reason"`
 }
 
-const channel = "tickets:close"
+const key = "tickets:close"
 
 func Publish(redis *redis.Client, data TicketClose) error {
 	marshalled, err := json.Marshal(data); if err != nil {
 		return err
 	}
-	return redis.Publish(channel, string(marshalled)).Err()
+	return redis.RPush(key, string(marshalled)).Err()
 }
 
 func Listen(redis *redis.Client, ch chan TicketClose) {
-	for payload := range redis.Subscribe(channel).Channel() {
+	for {
+		res, err := redis.BLPop(0, key).Result()
+		if err != nil {
+			continue
+		}
+
 		var data TicketClose
-		if err := json.Unmarshal([]byte(payload.Payload), &data); err != nil {
+		if err := json.Unmarshal([]byte(res[1]), &data); err != nil {
 			continue
 		}
 
