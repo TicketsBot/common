@@ -11,6 +11,7 @@ type TicketClose struct {
 	UserId         uint64 `json:"user_id"`
 	Reason         string `json:"reason"`
 	PublicBotToken string `json:"public_bot_token"`
+	PublicBotId    uint64 `json:"public_bot_id"`
 }
 
 const key = "tickets:close"
