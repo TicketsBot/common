@@ -6,28 +6,39 @@ import (
 )
 
 type Ticket struct {
-	GuildId  uint64
-	TicketId int
+	GuildId  uint64 `json:"guild_id"`
+	TicketId int    `json:"ticket_id"`
 }
 
 const channel = "tickets:autoclose"
 
 func PublishMessage(redis *redis.Client, data []Ticket) error {
-	marshalled, err := json.Marshal(data); if err != nil {
-		return err
+	var marshalled []interface{}
+	for _, ticket := range data {
+		json, err := json.Marshal(ticket)
+		if err != nil {
+			return err
+		}
+
+		marshalled = append(marshalled, string(json))
 	}
 
-	return redis.Publish(channel, string(marshalled)).Err()
+	return redis.RPush(channel, marshalled...).Err()
 }
 
 func Listen(redis *redis.Client, ch chan Ticket) {
-	for payload := range redis.Subscribe(channel).Channel() {
-		var data Ticket
-
-		if err := json.Unmarshal([]byte(payload.Payload), &data); err != nil {
+	for {
+		data, err := redis.BLPop(0, channel).Result()
+		if err != nil || len(data) < 2 {
 			continue
 		}
 
-		ch <- data
+		// data = [list_name, content]
+		var ticket Ticket
+		if err := json.Unmarshal([]byte(data[1]), &ticket); err != nil {
+			continue
+		}
+
+		ch <- ticket
 	}
 }
