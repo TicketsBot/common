@@ -1,4 +1,4 @@
-package chatrelay
+package autoclose
 
 import (
 	"encoding/json"
