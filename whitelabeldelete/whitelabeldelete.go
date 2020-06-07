@@ -1,4 +1,4 @@
-package statusupdates
+package whitelabeldelete
 
 import (
 	"github.com/go-redis/redis"
