@@ -11,7 +11,7 @@ func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (
 
 func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (tier PremiumTier, fromVoting bool) {
 	// check for cached result
-	cached, err := p.getCachedTier(userId)
+	cached, err := p.GetCachedTier(userId)
 	if err == nil {
 		if includeVoting || !cached.FromVoting {
 			if tier = PremiumTier(cached.Tier); tier > None {

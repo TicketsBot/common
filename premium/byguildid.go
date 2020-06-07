@@ -7,7 +7,7 @@ import (
 
 func (p *PremiumLookupClient) GetTierByGuildId(guildId uint64, includeVoting bool, botToken string, ratelimiter *ratelimit.Ratelimiter) (tier PremiumTier) {
 	// check for cached tier by guild ID
-	cached, err := p.getCachedTier(guildId)
+	cached, err := p.GetCachedTier(guildId)
 	if err == nil {
 		if includeVoting || !cached.FromVoting {
 			if tier = PremiumTier(cached.Tier); tier > None {
