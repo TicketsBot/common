@@ -30,7 +30,7 @@ func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (
 	}()
 
 	// check patreon
-	if tier, err = p.patreonClient.getTier(userId); tier > None && err == nil {
+	if tier, err = p.patreonClient.GetTier(userId); tier > None && err == nil {
 		return
 	}
 

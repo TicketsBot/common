@@ -27,7 +27,7 @@ type proxyResponse struct {
 	Tier int
 }
 
-func (p *PatreonClient) getTier(userId uint64) (PremiumTier, error) {
+func (p *PatreonClient) GetTier(userId uint64) (PremiumTier, error) {
 	url := fmt.Sprintf("%s/ispremium?key=%s&id=%d", p.proxyUrl, p.proxyKey, userId)
 	res, err := p.httpClient.Get(url); if err != nil {
 		return None, err
