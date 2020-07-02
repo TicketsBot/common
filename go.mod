@@ -8,5 +8,6 @@ require (
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/go-errors/errors v1.1.0 // indirect
 	github.com/go-redis/redis v6.15.8+incompatible // indirect
+	github.com/klauspost/compress v1.10.3
 	github.com/rxdn/gdl v0.0.0-20200522202912-4ae241eb98c1 // indirect
 )
