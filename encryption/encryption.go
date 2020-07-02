@@ -1,12 +1,12 @@
 package encryption
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"github.com/klauspost/compress/zstd"
 	"io"
+	"runtime"
 )
 
 func Encrypt(key, data []byte) ([]byte, error) {
@@ -51,30 +51,12 @@ func Decrypt(key, encrypted []byte) ([]byte, error) {
 	return decrypted, err
 }
 
-func Compress(data []byte) ([]byte, error) {
-	var buf bytes.Buffer
-	writer, err := zstd.NewWriter(&buf)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := writer.Write(data); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
+var compressor, _ = zstd.NewWriter(nil, zstd.WithEncoderConcurrency(runtime.NumCPU()))
+func Compress(data []byte) []byte {
+	return compressor.EncodeAll(data, make([]byte, 0, len(data)))
 }
 
-func Decompress(compressed []byte) ([]byte, error) {
-	reader, err := zstd.NewReader(bytes.NewBuffer(compressed))
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, reader); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
+var decompressor, _ = zstd.NewReader(nil, zstd.WithDecoderConcurrency(runtime.NumCPU()))
+func Decompress(data []byte) ([]byte, error) {
+	return decompressor.DecodeAll(data, nil)
 }
