@@ -9,37 +9,46 @@ import (
 	"io"
 )
 
-func Encrypt(key, data []byte) (encrypted []byte, err error) {
+func Encrypt(key, data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	cipherText := make([]byte, aes.BlockSize+len(data))
-	iv := cipherText[:aes.BlockSize]
-	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return
+	nonce := make([]byte, 12)
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
 	}
 
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], data)
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
 
-	return cipherText, nil
+	cipherText := gcm.Seal(nil, nonce, data, nil)
+	return append(nonce, cipherText...), nil
 }
 
-func Decrypt(key, encrypted []byte) (decrypted []byte, err error) {
+func Decrypt(key, encrypted []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	iv := encrypted[:aes.BlockSize]
-	encrypted = encrypted[aes.BlockSize:]
+	nonce := encrypted[:12]
+	cipherText := encrypted[12:]
 
-	stream := cipher.NewCFBDecrypter(block, iv)
-	stream.XORKeyStream(encrypted, encrypted)
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
 
-	return encrypted, nil
+	decrypted, err := gcm.Open(nil, nonce, cipherText, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return decrypted, err
 }
 
 func Compress(data []byte) ([]byte, error) {
