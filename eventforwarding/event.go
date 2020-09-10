@@ -12,11 +12,6 @@ type Event struct {
 	ShardId      int             `json:"shard_id"`
 	EventType    string          `json:"event_type"`
 	Data         json.RawMessage `json:"data"`
-	Extra        Extra           `json:"extra"`
-}
-
-type Extra struct {
-	IsJoin bool `json:"is_join"` // GUILD_CREATE
 }
 
 const key = "tickets:events"
