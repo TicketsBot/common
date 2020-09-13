@@ -10,8 +10,7 @@ type Event struct {
 	BotId        uint64          `json:"bot_id"`
 	IsWhitelabel bool            `json:"is_whitelabel"`
 	ShardId      int             `json:"shard_id"`
-	EventType    string          `json:"event_type"`
-	Data         json.RawMessage `json:"data"`
+	Event        json.RawMessage `json:"event"`
 }
 
 const key = "tickets:events"
