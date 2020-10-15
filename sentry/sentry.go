@@ -2,7 +2,6 @@ package sentry
 
 import (
 	"github.com/getsentry/raven-go"
-	"github.com/go-errors/errors"
 )
 
 type Options struct {
@@ -21,17 +20,14 @@ func Initialise(options Options) (err error) {
 }
 
 // log raw error
-func Error(e error) {
-	wrapped := errors.New(e)
-	raven.Capture(constructErrorPacket(wrapped), nil)
+func Error(err error) {
+	raven.Capture(constructErrorPacket(err), nil)
 }
 
-func LogWithContext(e error, ctx ErrorContext) {
-	wrapped := errors.New(e)
-	raven.Capture(constructPacket(wrapped, raven.INFO), ctx.ToMap())
+func LogWithContext(err error, ctx ErrorContext) {
+	raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
 }
 
-func ErrorWithContext(e error, ctx ErrorContext) {
-	wrapped := errors.New(e)
-	raven.Capture(constructErrorPacket(wrapped), ctx.ToMap())
+func ErrorWithContext(err error, ctx ErrorContext) {
+	raven.Capture(constructErrorPacket(err), ctx.ToMap())
 }
