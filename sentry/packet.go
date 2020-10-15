@@ -1,9 +1,9 @@
 package sentry
 
 import (
-	go_errors "errors"
+	"errors"
 	"github.com/getsentry/raven-go"
-	"github.com/go-errors/errors"
+	wrapper "github.com/go-errors/errors"
 	"github.com/rxdn/gdl/rest/request"
 	"os"
 	"time"
@@ -11,34 +11,33 @@ import (
 
 var project string
 
-func constructErrorPacket(e *errors.Error) *raven.Packet {
+func constructErrorPacket(e error) *raven.Packet {
 	return constructPacket(e, raven.ERROR)
 }
 
-func constructPacket(e *errors.Error, level raven.Severity) *raven.Packet {
-	hostname, err := os.Hostname(); if err != nil {
+func constructPacket(e error, level raven.Severity) *raven.Packet {
+	hostname, err := os.Hostname()
+	if err != nil {
 		hostname = "null"
 		Error(err)
 	}
 
 	extra := map[string]interface{}{
-		"stack": e.ErrorStack(),
+		"stack": wrapper.New(e).ErrorStack(),
 	}
 
 	var restError *request.RestError
-	if go_errors.As(e, &restError) {
+	if errors.As(e, &restError) {
 		extra["error_code"] = restError.ErrorCode
 		extra["message"] = restError.Message
 	}
 
 	return &raven.Packet{
-		Message: e.Error(),
-		Extra: extra,
-		Project: project,
-		Timestamp: raven.Timestamp(time.Now()),
-		Level: level,
+		Message:    e.Error(),
+		Extra:      extra,
+		Project:    project,
+		Timestamp:  raven.Timestamp(time.Now()),
+		Level:      level,
 		ServerName: hostname,
 	}
 }
-
-
