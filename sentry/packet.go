@@ -1,7 +1,6 @@
 package sentry
 
 import (
-	"errors"
 	"github.com/getsentry/raven-go"
 	wrapper "github.com/go-errors/errors"
 	"github.com/rxdn/gdl/rest/request"
@@ -26,8 +25,7 @@ func constructPacket(e error, level raven.Severity) *raven.Packet {
 		"stack": wrapper.New(e).ErrorStack(),
 	}
 
-	var restError *request.RestError
-	if errors.As(e, &restError) {
+	if restError, ok := e.(request.RestError); ok {
 		extra["error_code"] = restError.ErrorCode
 		extra["message"] = restError.Message
 	}
