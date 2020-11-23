@@ -2,6 +2,7 @@ package eventforwarding
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-redis/redis"
 )
 
@@ -24,19 +25,27 @@ func ForwardEvent(redis *redis.Client, data Event) error {
 	return redis.RPush(key, string(marshalled)).Err()
 }
 
-func Listen(redis *redis.Client, ch chan Event) {
-	for {
-		data, err := redis.BLPop(0, key).Result()
-		if err != nil || len(data) < 2 {
-			continue
-		}
+func Listen(redis *redis.Client) chan Event {
+	ch := make(chan Event)
 
-		// data = [list_name, content]
-		var event Event
-		if err := json.Unmarshal([]byte(data[1]), &event); err != nil {
-			continue
-		}
+	go func() {
+		for {
+			data, err := redis.BLPop(0, key).Result()
+			if err != nil || len(data) < 2 {
+				fmt.Println(err.Error())
+				continue
+			}
 
-		ch <- event
-	}
+			// data = [list_name, content]
+			var event Event
+			if err := json.Unmarshal([]byte(data[1]), &event); err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+
+			ch <- event
+		}
+	}()
+
+	return ch
 }

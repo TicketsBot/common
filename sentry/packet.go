@@ -18,7 +18,6 @@ func constructPacket(e error, level raven.Severity) *raven.Packet {
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "null"
-		Error(err)
 	}
 
 	extra := map[string]interface{}{
