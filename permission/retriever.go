@@ -80,6 +80,6 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 		}
 	}
 
-	err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Everyone)
+	err = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Everyone)
 	return Everyone, err
 }
