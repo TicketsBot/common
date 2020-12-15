@@ -38,3 +38,19 @@ func constructPacket(e error, level raven.Severity) *raven.Packet {
 		ServerName: hostname,
 	}
 }
+
+func constructLogPacket(msg string, extra map[string]interface{}) *raven.Packet {
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "null"
+	}
+
+	return &raven.Packet{
+		Message:    msg,
+		Extra:      extra,
+		Project:    project,
+		Timestamp:  raven.Timestamp(time.Now()),
+		Level:      raven.INFO,
+		ServerName: hostname,
+	}
+}

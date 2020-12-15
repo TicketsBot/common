@@ -24,10 +24,14 @@ func Error(err error) {
 	raven.Capture(constructErrorPacket(err), nil)
 }
 
-func LogWithContext(err error, ctx ErrorContext) {
-	raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
-}
-
 func ErrorWithContext(err error, ctx ErrorContext) {
 	raven.Capture(constructErrorPacket(err), ctx.ToMap())
+}
+
+func Log(msg string, extra map[string]interface{}) {
+	raven.Capture(constructLogPacket(msg, extra), nil)
+}
+
+func LogWithContext(err error, ctx ErrorContext) {
+	raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
 }
