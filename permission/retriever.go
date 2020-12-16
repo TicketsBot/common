@@ -19,7 +19,7 @@ type Retriever interface {
 	GetGuildRoles(uint64) ([]guild.Role, error)
 }
 
-func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (PermissionLevel, error) {
+func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, err error) {
 	// Check user ID in cache
 	if cached, err := GetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id); err == nil {
 		return cached, nil
@@ -32,54 +32,69 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 		return Admin, nil
 	}
 
+	// Don't recache if already cached (for now?)
+	defer func() {
+		if err == nil {
+			err = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, permLevel)
+		}
+	}()
+
 	// Check if user is guild owner
 	guild, err := retriever.GetGuild(guildId)
 	if err == nil {
 		if member.User.Id == guild.OwnerId {
-			err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Admin)
-			return Admin, err
+			return Admin, nil
 		}
+	} else {
+		return Everyone, err
 	}
 
 	// Check user perms for admin
-	adminUser, _ := retriever.Db().Permissions.IsAdmin(guildId, member.User.Id)
-	if adminUser {
-		err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Admin)
-		return Admin, err
+	if adminUser, err := retriever.Db().Permissions.IsAdmin(guildId, member.User.Id); err == nil {
+		if adminUser {
+			return Admin, nil
+		}
+	} else {
+		return Everyone, err
 	}
 
 	// Check roles from DB
-	adminRoles, _ := retriever.Db().RolePermissions.GetAdminRoles(guildId)
+	adminRoles, err := retriever.Db().RolePermissions.GetAdminRoles(guildId); if err != nil {
+		return Everyone, err
+	}
+
 	for _, adminRoleId := range adminRoles {
 		if member.HasRole(adminRoleId) {
-			err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Admin)
-			return Admin, err
+			return Admin, nil
 		}
 	}
 
 	// Check if user has Administrator permission
 	hasAdminPermission := HasPermissions(retriever, guildId, member.User.Id, permission.Administrator)
 	if hasAdminPermission {
-		err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Admin)
-		return Admin, err
+		return Admin, nil
 	}
 
 	// Check user perms for support
-	isSupport, _ := retriever.Db().Permissions.IsSupport(guildId, member.User.Id)
-	if isSupport {
-		err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Support)
-		return Support, err
+	if isSupport, err := retriever.Db().Permissions.IsSupport(guildId, member.User.Id); err == nil {
+		if isSupport {
+			return Support, nil
+		}
+	} else {
+		return Everyone, err
 	}
 
 	// Check DB for support roles
-	supportRoles, _ := retriever.Db().RolePermissions.GetSupportRoles(guildId)
+	supportRoles, err := retriever.Db().RolePermissions.GetSupportRoles(guildId)
+	if err != nil {
+		return Everyone, err
+	}
+
 	for _, supportRoleId := range supportRoles {
 		if member.HasRole(supportRoleId) {
-			err := SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Support)
-			return Support, err
+			return Support, nil
 		}
 	}
 
-	err = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, Everyone)
-	return Everyone, err
+	return Everyone, nil
 }
