@@ -32,6 +32,10 @@ func Log(msg string, extra map[string]interface{}) {
 	raven.Capture(constructLogPacket(msg, extra), nil)
 }
 
+func LogWithTags(msg string, extra map[string]interface{}, tags map[string]string) {
+	raven.Capture(constructLogPacket(msg, extra), tags)
+}
+
 func LogWithContext(err error, ctx ErrorContext) {
 	raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
 }
