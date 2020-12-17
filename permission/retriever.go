@@ -19,7 +19,7 @@ type Retriever interface {
 	GetGuildRoles(uint64) ([]guild.Role, error)
 }
 
-func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, err error) {
+func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, returnedError error) {
 	// Check user ID in cache
 	if cached, err := GetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id); err == nil {
 		return cached, nil
@@ -34,14 +34,13 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 
 	// Don't recache if already cached (for now?)
 	defer func() {
-		if err == nil {
-			err = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, permLevel)
+		if returnedError == nil {
+			returnedError = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, permLevel)
 		}
 	}()
 
 	// Check if user is guild owner
-	guild, err := retriever.GetGuild(guildId)
-	if err == nil {
+	if guild, err := retriever.GetGuild(guildId); err == nil {
 		if member.User.Id == guild.OwnerId {
 			return Admin, nil
 		}
