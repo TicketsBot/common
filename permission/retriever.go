@@ -2,7 +2,6 @@ package permission
 
 import (
 	"github.com/TicketsBot/database"
-	"github.com/go-redis/redis"
 	"github.com/rxdn/gdl/objects/channel"
 	"github.com/rxdn/gdl/objects/guild"
 	"github.com/rxdn/gdl/objects/member"
@@ -11,7 +10,7 @@ import (
 
 type Retriever interface {
 	Db() *database.Database
-	Redis() *redis.Client
+	Cache() PermissionCache
 	IsBotAdmin(uint64) bool
 	GetGuild(uint64) (guild.Guild, error)
 	GetChannel(uint64) (channel.Channel, error)
@@ -21,9 +20,9 @@ type Retriever interface {
 
 func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, returnedError error) {
 	// Check user ID in cache
-	if cached, err := GetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id); err == nil {
+	if cached, err := retriever.Cache().GetCachedPermissionLevel(guildId, member.User.Id); err == nil {
 		return cached, nil
-	} else if err != redis.Nil {
+	} else if err != ErrNotCached {
 		return Everyone, err
 	}
 
@@ -35,7 +34,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	// Don't recache if already cached (for now?)
 	defer func() {
 		if returnedError == nil {
-			returnedError = SetCachedPermissionLevel(retriever.Redis(), guildId, member.User.Id, permLevel)
+			returnedError = retriever.Cache().SetCachedPermissionLevel(guildId, member.User.Id, permLevel)
 		}
 	}()
 
