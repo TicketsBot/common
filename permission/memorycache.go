@@ -17,8 +17,8 @@ type MemoryCache struct {
 
 func NewMemoryCache() *MemoryCache {
 	return &MemoryCache{
-		store: make(map[memberId]PermissionLevel),
-		mu:    sync.RWMutex{},
+		store:         make(map[memberId]PermissionLevel),
+		cancelRemoval: make(map[memberId]chan struct{}),
 	}
 }
 
