@@ -13,6 +13,12 @@ type RedisCache struct {
 	client *redis.Client
 }
 
+func NewRedisCache(client *redis.Client) *RedisCache {
+	return &RedisCache{
+		client: client,
+	}
+}
+
 func (c *RedisCache) GetCachedPermissionLevel(guildId, userId uint64) (PermissionLevel, error) {
 	key := fmt.Sprintf("permissions:%d:%d", guildId, userId)
 
