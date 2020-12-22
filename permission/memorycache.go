@@ -50,7 +50,6 @@ func (c *MemoryCache) SetCachedPermissionLevel(guildId, userId uint64, level Per
 	c.mu.Unlock()
 
 	cancel := make(chan struct{})
-	c.cancelRemovalMu.Lock()
 
 	if existing, ok := c.cancelRemoval[member]; ok {
 		existing <- struct{}{}
