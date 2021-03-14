@@ -1,6 +1,8 @@
 github.com/ReneKroon/ttlcache v1.6.0/go.mod h1:DG6nbhXKUQhrExfwwLuZUdH7UnRDDRA1IW+nBuCssvs=
 github.com/TicketsBot/database v0.0.0-20210224145232-a4ca54f9e764 h1:G0DIonsnfZv+HNHDX3X5AOHJ+9oNKFwDd1/r/OqeukQ=
 github.com/TicketsBot/database v0.0.0-20210224145232-a4ca54f9e764/go.mod h1:eky4tBL+IZ0svPgTT0N/9i6j7ygHDQH3784DW+HgfcA=
+github.com/TicketsBot/database v0.0.0-20210314143312-464ac4588cf2 h1:5R+qA0BXgQjDlL0tWe0ByE/evSZdfQgLKIrCz3vMVBc=
+github.com/TicketsBot/database v0.0.0-20210314143312-464ac4588cf2/go.mod h1:eky4tBL+IZ0svPgTT0N/9i6j7ygHDQH3784DW+HgfcA=
 github.com/TicketsBot/ttlcache v1.6.1-0.20200405150101-acc18e37b261 h1:NHD5GB6cjlkpZFjC76Yli2S63/J2nhr8MuE6KlYJpQM=
 github.com/TicketsBot/ttlcache v1.6.1-0.20200405150101-acc18e37b261/go.mod h1:2zPxDAN2TAPpxUPjxszjs3QFKreKrQh5al/R3cMXmYk=
 github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=

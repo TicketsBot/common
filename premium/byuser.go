@@ -34,6 +34,11 @@ func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (
 		return
 	}
 
+	// check whitelabel keys
+	if isWhitelabel, err := p.hasWhitelabelKey(userId); err == nil && isWhitelabel {
+		return Whitelabel, false
+	}
+
 	// check for votes
 	if includeVoting {
 		if tier, err = p.hasVoted(userId); tier > None && err == nil {
@@ -55,5 +60,10 @@ func (p *PremiumLookupClient) hasVoted(userId uint64) (PremiumTier, error) {
 	} else {
 		return None, nil
 	}
+}
+
+
+func (p *PremiumLookupClient) hasWhitelabelKey(userId uint64) (bool, error) {
+	return p.database.WhitelabelUsers.IsPremium(userId)
 }
 
