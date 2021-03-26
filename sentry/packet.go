@@ -25,8 +25,8 @@ func constructPacket(e error, level raven.Severity) *raven.Packet {
 	}
 
 	if restError, ok := e.(request.RestError); ok {
-		extra["error_code"] = restError.ErrorCode
-		extra["message"] = restError.Message
+		extra["status_code"] = restError.StatusCode
+		extra["message"] = restError.Error()
 	}
 
 	return &raven.Packet{
