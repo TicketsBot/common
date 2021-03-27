@@ -104,7 +104,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check if user has a role assigned to a support team
-	if isSupport, err := retriever.Db().SupportTeamRoles.IsSupportAny(guildId, member.Roles); err != nil {
+	if isSupport, err := retriever.Db().SupportTeamRoles.IsSupportAny(guildId, member.Roles); err == nil {
 		if isSupport {
 			return Support, nil
 		}
