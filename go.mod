@@ -9,7 +9,7 @@ require (
 	github.com/go-errors/errors v1.1.0
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/klauspost/compress v1.10.3
-	github.com/rxdn/gdl v0.0.0-20210326145428-ad30019983b9
+	github.com/rxdn/gdl v0.0.0-20210527173953-25dde613ff0a
 	github.com/sirupsen/logrus v1.5.0
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 )
