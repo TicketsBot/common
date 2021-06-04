@@ -12,13 +12,19 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild, includeVoting bo
 		})
 	}()
 
+	admins, err := p.database.Permissions.GetAdmins(guild.Id)
+	if err != nil { // TODO: LOG
+		return None
+	}
+
+	admins = append(admins, guild.OwnerId)
+
 	// check patreon + votes
 	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
-	if tier, fromVoting = p.getTierByUser(guild.OwnerId, includeVoting); tier > None {
+	if tier, fromVoting = p.getTierByUsers(admins, includeVoting); tier > None {
 		return
 	}
 
-	var err error
 	if tier, err = p.hasKey(guild.Id); err == nil && tier > None {
 		return
 	}

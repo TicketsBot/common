@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -27,8 +29,13 @@ type proxyResponse struct {
 	Tier int
 }
 
-func (p *PatreonClient) GetTier(userId uint64) (PremiumTier, error) {
-	url := fmt.Sprintf("%s/ispremium?key=%s&id=%d", p.proxyUrl, p.proxyKey, userId)
+func (p *PatreonClient) GetTier(userIds ...uint64) (PremiumTier, error) {
+	strIds := make([]string, len(userIds))
+	for i, userId := range userIds {
+		strIds[i] = strconv.FormatUint(userId, 10)
+	}
+
+	url := fmt.Sprintf("%s/ispremium?key=%s&id=%s", p.proxyUrl, p.proxyKey, strings.Join(strIds, ","))
 	res, err := p.httpClient.Get(url); if err != nil {
 		return None, err
 	}

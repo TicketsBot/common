@@ -1,9 +1,5 @@
 package premium
 
-import (
-	"time"
-)
-
 func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (tier PremiumTier) {
 	tier, _ = p.getTierByUser(userId, includeVoting)
 	return
@@ -50,20 +46,49 @@ func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (
 	return None, false
 }
 
-func (p *PremiumLookupClient) hasVoted(userId uint64) (PremiumTier, error) {
-	voteTime, err := p.database.Votes.Get(userId); if err != nil {
+func (p *PremiumLookupClient) getTierByUsers(userIds []uint64, includeVoting bool) (tier PremiumTier, fromVoting bool) {
+	// check patreon
+	patreonTier, err := p.patreonClient.GetTier(userIds...)
+	if err == nil && patreonTier > tier {
+		tier = patreonTier
+	}
+
+	if tier == Whitelabel {
+		return
+	}
+
+	// check whitelabel keys
+	if isWhitelabel, err := p.hasWhitelabelKey(userIds...); err == nil && isWhitelabel {
+		return Whitelabel, false
+	}
+
+	// check for votes
+	// we can skip here if
+	if includeVoting && tier == None {
+		votingTier, err := p.hasVoted(userIds...)
+		if err == nil && votingTier > tier {
+			tier = votingTier
+			fromVoting = true
+			return
+		}
+	}
+
+	return
+}
+
+func (p *PremiumLookupClient) hasVoted(userIds ...uint64) (PremiumTier, error) {
+	isPremium, err := p.database.Votes.Any(userIds...)
+	if err != nil {
 		return None, err
 	}
 
-	if voteTime.After(time.Now().Add(time.Hour * -24)) {
+	if isPremium {
 		return Premium, nil
 	} else {
-		return None, nil
+		return None, err
 	}
 }
 
-
-func (p *PremiumLookupClient) hasWhitelabelKey(userId uint64) (bool, error) {
-	return p.database.WhitelabelUsers.IsPremium(userId)
+func (p *PremiumLookupClient) hasWhitelabelKey(userIds ...uint64) (bool, error) {
+	return p.database.WhitelabelUsers.AnyPremium(userIds)
 }
-
