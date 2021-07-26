@@ -1,6 +1,6 @@
 package premium
 
-type Source uint8
+type Source int8
 
 const (
 	SourcePatreon Source = iota
