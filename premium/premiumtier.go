@@ -1,6 +1,6 @@
 package premium
 
-type PremiumTier int
+type PremiumTier int8
 
 const (
 	None PremiumTier = iota - 1

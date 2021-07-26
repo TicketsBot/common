@@ -7,7 +7,7 @@ import (
 )
 
 type CachedTier struct {
-	Tier   int    `json:"tier"`
+	Tier   int8   `json:"tier"`
 	Source Source `json:"source"`
 }
 

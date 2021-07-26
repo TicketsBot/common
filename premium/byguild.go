@@ -7,7 +7,7 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 		// cache result
 		if _err == nil {
 			go p.SetCachedTier(guild.Id, CachedTier{
-				Tier:   int(_tier),
+				Tier:   int8(_tier),
 				Source: _src,
 			})
 		}

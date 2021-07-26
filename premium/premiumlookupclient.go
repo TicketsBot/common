@@ -4,7 +4,21 @@ import (
 	"github.com/TicketsBot/database"
 	"github.com/go-redis/redis"
 	"github.com/rxdn/gdl/cache"
+	"github.com/rxdn/gdl/objects/guild"
+	"github.com/rxdn/gdl/rest/ratelimit"
 )
+
+type IPremiumLookupClient interface {
+	GetCachedTier(uint64) (CachedTier, error)
+	SetCachedTier(uint64, CachedTier) error
+
+	GetTierByGuild(guild.Guild) (PremiumTier, Source, error)
+	GetTierByGuildId(uint64, bool, string, *ratelimit.Ratelimiter) (PremiumTier, error)
+	GetTierByGuildIdWithSource(uint64, string, *ratelimit.Ratelimiter) (PremiumTier, Source, error)
+
+	GetTierByUser(uint64, bool) (PremiumTier, error)
+	GetTierByUserWithSource(uint64) (PremiumTier, Source, error)
+}
 
 type PremiumLookupClient struct {
 	patreonClient *PatreonClient

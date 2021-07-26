@@ -28,7 +28,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier Premi
 		// cache result
 		if _err == nil {
 			go p.SetCachedTier(userId, CachedTier{
-				Tier:   int(tier),
+				Tier:   int8(tier),
 				Source: src,
 			})
 		}
