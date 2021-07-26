@@ -1,56 +1,74 @@
 package premium
 
-func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (tier PremiumTier) {
-	tier, _ = p.getTierByUser(userId, includeVoting)
-	return
+import "github.com/go-redis/redis"
+
+func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (PremiumTier, error) {
+	tier, source, err := p.GetTierByUserWithSource(userId)
+	if err != nil {
+		return None, err
+	}
+
+	if source == SourceVoting && !includeVoting {
+		return None, nil
+	}
+
+	return tier, nil
 }
 
-func (p *PremiumLookupClient) getTierByUser(userId uint64, includeVoting bool) (tier PremiumTier, fromVoting bool) {
+func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier PremiumTier, src Source, _err error) {
 	// check for cached result
 	cached, err := p.GetCachedTier(userId)
-	if err == nil {
-		if includeVoting || !cached.FromVoting {
-			if tier = PremiumTier(cached.Tier); tier > None {
-				fromVoting = cached.FromVoting
-				return
-			}
-		}
+	if err != nil && err != redis.Nil {
+		return None, -1, err
+	} else if err == nil {
+		return PremiumTier(cached.Tier), cached.Source, nil
 	}
 
 	defer func() {
 		// cache result
-		go p.SetCachedTier(userId, CachedTier{
-			Tier:       int(tier),
-			FromVoting: fromVoting,
-		})
+		if _err == nil {
+			go p.SetCachedTier(userId, CachedTier{
+				Tier:   int(tier),
+				Source: src,
+			})
+		}
 	}()
 
 	// check patreon
-	if tier, err = p.patreonClient.GetTier(userId); tier > None && err == nil {
-		return
+	patreonTier, err := p.patreonClient.GetTier(userId)
+	if err != nil {
+		return None, -1, err
+	} else if tier > None {
+		return patreonTier, SourcePatreon, nil
 	}
 
 	// check whitelabel keys
-	if isWhitelabel, err := p.hasWhitelabelKey(userId); err == nil && isWhitelabel {
-		return Whitelabel, false
+	isWhitelabel, err := p.hasWhitelabelKey(userId)
+	if err != nil {
+		return None, -1, err
+	} else if isWhitelabel {
+		return Whitelabel, SourceWhitelabelKey, nil
 	}
 
 	// check for votes
-	if includeVoting {
-		if tier, err = p.hasVoted(userId); tier > None && err == nil {
-			fromVoting = true
-			return
-		}
+	votingTier, err := p.hasVoted(userId)
+	if err != nil {
+		return None, -1, err
+	} else if tier > None {
+		return votingTier, SourceVoting, nil
 	}
 
-	return None, false
+	return None, -1, nil
 }
 
-func (p *PremiumLookupClient) getTierByUsers(userIds []uint64, includeVoting bool) (tier PremiumTier, fromVoting bool) {
+func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier, src Source, _err error) {
 	// check patreon
 	patreonTier, err := p.patreonClient.GetTier(userIds...)
-	if err == nil && patreonTier > tier {
+	if err != nil {
+		return None, -1, err
+	} else if patreonTier > tier {
 		tier = patreonTier
+		src = SourcePatreon
 	}
 
 	if tier == Whitelabel {
@@ -58,18 +76,21 @@ func (p *PremiumLookupClient) getTierByUsers(userIds []uint64, includeVoting boo
 	}
 
 	// check whitelabel keys
-	if isWhitelabel, err := p.hasWhitelabelKey(userIds...); err == nil && isWhitelabel {
-		return Whitelabel, false
+	isWhitelabel, err := p.hasWhitelabelKey(userIds...)
+	if err != nil {
+		return None, -1, err
+	} else if isWhitelabel {
+		return Whitelabel, SourceWhitelabelKey, nil
 	}
 
 	// check for votes
-	// we can skip here if
-	if includeVoting && tier == None {
+	// we can skip here if already premium
+	if tier == None {
 		votingTier, err := p.hasVoted(userIds...)
-		if err == nil && votingTier > tier {
-			tier = votingTier
-			fromVoting = true
-			return
+		if err != nil {
+			return None, -1, err
+		} else if votingTier > tier {
+			return votingTier, SourceVoting, nil
 		}
 	}
 

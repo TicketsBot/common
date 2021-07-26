@@ -2,38 +2,46 @@ package premium
 
 import "github.com/rxdn/gdl/objects/guild"
 
-func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild, includeVoting bool) (tier PremiumTier) {
-	var fromVoting bool
-
+func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTier, _src Source, _err error) {
 	defer func() {
-		go p.SetCachedTier(guild.Id, CachedTier{
-			Tier:       int(tier),
-			FromVoting: fromVoting,
-		})
+		// cache result
+		if _err == nil {
+			go p.SetCachedTier(guild.Id, CachedTier{
+				Tier:   int(_tier),
+				Source: _src,
+			})
+		}
 	}()
 
 	admins, err := p.database.Permissions.GetAdmins(guild.Id)
-	if err != nil { // TODO: LOG
-		return None
+	if err != nil {
+		return None, -1, err
 	}
 
 	admins = append(admins, guild.OwnerId)
 
 	// check patreon + votes
 	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
-	if tier, fromVoting = p.getTierByUsers(admins, includeVoting); tier > None {
-		return
+	adminsTier, src, err := p.getTierByUsers(admins)
+	if err != nil {
+		return None, -1, err
+	} else if adminsTier > None {
+		return adminsTier, src, nil
 	}
 
-	if tier, err = p.hasKey(guild.Id); err == nil && tier > None {
-		return
+	keyTier, err := p.hasKey(guild.Id)
+	if err != nil {
+		return None, -1, err
+	} else if keyTier > None {
+		return keyTier, SourcePremiumKey, nil
 	}
 
-	return None
+	return None, -1, nil
 }
 
 func (p *PremiumLookupClient) hasKey(guildId uint64) (PremiumTier, error) {
-	isPremium, err := p.database.PremiumGuilds.IsPremium(guildId); if err != nil {
+	isPremium, err := p.database.PremiumGuilds.IsPremium(guildId)
+	if err != nil {
 		return None, err
 	}
 

@@ -7,8 +7,8 @@ import (
 )
 
 type CachedTier struct {
-	Tier       int    `json:"tier"`
-	FromVoting bool   `json:"from_voting"`
+	Tier   int    `json:"tier"`
+	Source Source `json:"source"`
 }
 
 const timeout = time.Minute * 5
@@ -18,7 +18,8 @@ const timeout = time.Minute * 5
 func (p *PremiumLookupClient) GetCachedTier(id uint64) (tier CachedTier, err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
-	res, err := p.redis.Get(key).Result(); if err != nil {
+	res, err := p.redis.Get(key).Result()
+	if err != nil {
 		return
 	}
 
@@ -29,7 +30,8 @@ func (p *PremiumLookupClient) GetCachedTier(id uint64) (tier CachedTier, err err
 func (p *PremiumLookupClient) SetCachedTier(id uint64, data CachedTier) (err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
-	marshalled, err := json.Marshal(data); if err != nil {
+	marshalled, err := json.Marshal(data)
+	if err != nil {
 		return
 	}
 
