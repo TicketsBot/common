@@ -8,3 +8,18 @@ const (
 	SourceWhitelabelKey
 	SourceVoting
 )
+
+func (s Source) String() string {
+	switch s {
+	case SourcePatreon:
+		return "Patreon"
+	case SourcePremiumKey:
+		return "Premium Key"
+	case SourceWhitelabelKey:
+		return "Whitelabel Key"
+	case SourceVoting:
+		return "Voting"
+	default:
+		return "Unknown"
+	}
+}
