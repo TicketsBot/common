@@ -18,3 +18,17 @@ func TierToInt(tier PremiumTier) int {
 		return -1
 	}
 }
+
+func (t PremiumTier) String() string {
+	switch t {
+	case None:
+		return "None"
+	case Premium:
+		return "Premium"
+	case Whitelabel:
+		return "Whitelabel"
+	default:
+		return "Unknown"
+	}
+}
+

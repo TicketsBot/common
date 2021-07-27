@@ -1,6 +1,8 @@
 package premium
 
-import "github.com/go-redis/redis"
+import (
+	"github.com/go-redis/redis"
+)
 
 func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (PremiumTier, error) {
 	tier, source, err := p.GetTierByUserWithSource(userId)
@@ -16,6 +18,9 @@ func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (
 }
 
 func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier PremiumTier, src Source, _err error) {
+	tier = None
+	src = -1
+
 	// check for cached result
 	cached, err := p.GetCachedTier(userId)
 	if err != nil && err != redis.Nil {
@@ -62,6 +67,9 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier Premi
 }
 
 func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier, src Source, _err error) {
+	tier = None
+	src = -1
+
 	// check patreon
 	patreonTier, err := p.patreonClient.GetTier(userIds...)
 	if err != nil {
@@ -82,7 +90,6 @@ func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier
 	} else if isWhitelabel {
 		return Whitelabel, SourceWhitelabelKey, nil
 	}
-
 	// check for votes
 	// we can skip here if already premium
 	if tier == None {

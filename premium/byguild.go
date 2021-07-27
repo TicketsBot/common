@@ -1,8 +1,13 @@
 package premium
 
-import "github.com/rxdn/gdl/objects/guild"
+import (
+	"github.com/rxdn/gdl/objects/guild"
+)
 
 func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTier, _src Source, _err error) {
+	_tier = None
+	_src = -1
+
 	defer func() {
 		// cache result
 		if _err == nil {

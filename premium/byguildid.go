@@ -18,6 +18,7 @@ func (p *PremiumLookupClient) GetTierByGuildId(guildId uint64, includeVoting boo
 
 	return tier, nil
 }
+
 func (p *PremiumLookupClient) GetTierByGuildIdWithSource(guildId uint64, botToken string, ratelimiter *ratelimit.Ratelimiter) (PremiumTier, Source, error) {
 	// check for cached tier by guild ID
 	cached, err := p.GetCachedTier(guildId)
