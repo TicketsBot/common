@@ -17,9 +17,9 @@ func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (
 	return tier, nil
 }
 
-func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier PremiumTier, src Source, _err error) {
-	tier = None
-	src = -1
+func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier PremiumTier, _src Source, _err error) {
+	_tier = None
+	_src = -1
 
 	// check for cached result
 	cached, err := p.GetCachedTier(userId)
@@ -33,8 +33,8 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier Premi
 		// cache result
 		if _err == nil {
 			go p.SetCachedTier(userId, CachedTier{
-				Tier:   int8(tier),
-				Source: src,
+				Tier:   int8(_tier),
+				Source: _src,
 			})
 		}
 	}()
@@ -43,7 +43,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier Premi
 	patreonTier, err := p.patreonClient.GetTier(userId)
 	if err != nil {
 		return None, -1, err
-	} else if tier > None {
+	} else if patreonTier > None {
 		return patreonTier, SourcePatreon, nil
 	}
 
@@ -59,7 +59,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (tier Premi
 	votingTier, err := p.hasVoted(userId)
 	if err != nil {
 		return None, -1, err
-	} else if tier > None {
+	} else if votingTier > None {
 		return votingTier, SourceVoting, nil
 	}
 
