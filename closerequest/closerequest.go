@@ -8,18 +8,13 @@ import (
 
 const channel = "tickets:closerequest:timer"
 
-func PublishMessage(redis *redis.Client, data []database.CloseRequest) error {
-	var marshalled []interface{}
-	for _, ticket := range data {
-		json, err := json.Marshal(ticket)
-		if err != nil {
-			return err
-		}
-
-		marshalled = append(marshalled, string(json))
+func PublishMessage(redis *redis.Client, data database.CloseRequest) error {
+	json, err := json.Marshal(data)
+	if err != nil {
+		return err
 	}
 
-	return redis.RPush(channel, marshalled...).Err()
+	return redis.RPush(channel, string(json)).Err()
 }
 
 func Listen(redis *redis.Client, ch chan database.CloseRequest) {
