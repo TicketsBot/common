@@ -1,4 +1,4 @@
-package autoclose
+package closerequest
 
 import (
 	"encoding/json"
