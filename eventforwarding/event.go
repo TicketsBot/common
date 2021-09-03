@@ -1,9 +1,11 @@
 package eventforwarding
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/TicketsBot/common/utils"
+	"github.com/go-redis/redis/v8"
 )
 
 type Event struct {
@@ -22,7 +24,7 @@ func ForwardEvent(redis *redis.Client, data Event) error {
 		return err
 	}
 
-	return redis.RPush(key, string(marshalled)).Err()
+	return redis.RPush(utils.DefaultContext(), key, string(marshalled)).Err()
 }
 
 func Listen(redis *redis.Client) chan Event {
@@ -30,7 +32,7 @@ func Listen(redis *redis.Client) chan Event {
 
 	go func() {
 		for {
-			data, err := redis.BLPop(0, key).Result()
+			data, err := redis.BLPop(context.Background(), 0, key).Result()
 			if err != nil || len(data) < 2 {
 				fmt.Println(err.Error())
 				continue

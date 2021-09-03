@@ -1,9 +1,10 @@
 package eventforwarding
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/rxdn/gdl/objects/interaction"
 )
 
@@ -22,7 +23,7 @@ func ListenCommands(redis *redis.Client) chan Interaction {
 
 	go func() {
 		for {
-			data, err := redis.BLPop(0, commandKey).Result()
+			data, err := redis.BLPop(context.Background(), 0, commandKey).Result()
 			if err != nil || len(data) < 2 {
 				fmt.Println(err.Error())
 				continue

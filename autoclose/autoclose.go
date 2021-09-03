@@ -1,8 +1,10 @@
 package autoclose
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/go-redis/redis"
+	"github.com/TicketsBot/common/utils"
+	"github.com/go-redis/redis/v8"
 )
 
 type Ticket struct {
@@ -23,12 +25,12 @@ func PublishMessage(redis *redis.Client, data []Ticket) error {
 		marshalled = append(marshalled, string(json))
 	}
 
-	return redis.RPush(channel, marshalled...).Err()
+	return redis.RPush(utils.DefaultContext(), channel, marshalled...).Err()
 }
 
 func Listen(redis *redis.Client, ch chan Ticket) {
 	for {
-		data, err := redis.BLPop(0, channel).Result()
+		data, err := redis.BLPop(context.Background(), 0, channel).Result()
 		if err != nil || len(data) < 2 {
 			continue
 		}

@@ -1,7 +1,7 @@
 package premium
 
 import (
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (PremiumTier, error) {

@@ -2,7 +2,7 @@ package premium
 
 import (
 	"github.com/TicketsBot/database"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/rxdn/gdl/cache"
 	"github.com/rxdn/gdl/objects/guild"
 	"github.com/rxdn/gdl/rest/ratelimit"

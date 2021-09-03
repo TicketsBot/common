@@ -1,9 +1,11 @@
 package chatrelay
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/TicketsBot/common/utils"
 	"github.com/TicketsBot/database"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/rxdn/gdl/objects/channel/message"
 )
 
@@ -19,11 +21,11 @@ func PublishMessage(redis *redis.Client, data MessageData) error {
 		return err
 	}
 
-	return redis.Publish(channel, string(marshalled)).Err()
+	return redis.Publish(utils.DefaultContext(), channel, string(marshalled)).Err()
 }
 
 func Listen(redis *redis.Client, ch chan MessageData) {
-	for payload := range redis.Subscribe(channel).Channel() {
+	for payload := range redis.Subscribe(context.Background(), channel).Channel() {
 		var data MessageData
 
 		if err := json.Unmarshal([]byte(payload.Payload), &data); err != nil {

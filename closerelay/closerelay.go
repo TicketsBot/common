@@ -1,8 +1,10 @@
 package closerelay
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/go-redis/redis"
+	"github.com/TicketsBot/common/utils"
+	"github.com/go-redis/redis/v8"
 )
 
 type TicketClose struct {
@@ -19,12 +21,12 @@ func Publish(redis *redis.Client, data TicketClose) error {
 	if err != nil {
 		return err
 	}
-	return redis.RPush(key, string(marshalled)).Err()
+	return redis.RPush(utils.DefaultContext(), key, string(marshalled)).Err()
 }
 
 func Listen(redis *redis.Client, ch chan TicketClose) {
 	for {
-		res, err := redis.BLPop(0, key).Result()
+		res, err := redis.BLPop(context.Background(), 0, key).Result()
 		if err != nil {
 			continue
 		}

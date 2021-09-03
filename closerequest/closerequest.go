@@ -1,9 +1,11 @@
 package closerequest
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/TicketsBot/common/utils"
 	"github.com/TicketsBot/database"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 const channel = "tickets:closerequest:timer"
@@ -14,12 +16,12 @@ func PublishMessage(redis *redis.Client, data database.CloseRequest) error {
 		return err
 	}
 
-	return redis.RPush(channel, string(json)).Err()
+	return redis.RPush(utils.DefaultContext(), channel, string(json)).Err()
 }
 
 func Listen(redis *redis.Client, ch chan database.CloseRequest) {
 	for {
-		data, err := redis.BLPop(0, channel).Result()
+		data, err := redis.BLPop(context.Background(), 0, channel).Result()
 		if err != nil || len(data) < 2 {
 			continue
 		}

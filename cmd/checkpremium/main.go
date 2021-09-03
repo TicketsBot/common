@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/TicketsBot/common/premium"
 	"github.com/TicketsBot/database"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rxdn/gdl/cache"
 	"os"
