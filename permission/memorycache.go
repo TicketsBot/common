@@ -76,3 +76,21 @@ func (c *MemoryCache) SetCachedPermissionLevel(guildId, userId uint64, level Per
 
 	return nil
 }
+
+func (c *MemoryCache) DeleteCachedPermissionLevel(guildId, userId uint64) error {
+	member := memberId{guildId, userId}
+
+	c.mu.Lock()
+	delete(c.store, member)
+	c.mu.Unlock()
+
+	if existing, ok := c.cancelRemoval[member]; ok {
+		existing <- struct{}{}
+	}
+
+	c.cancelRemovalMu.Lock()
+	delete(c.cancelRemoval, member)
+	c.cancelRemovalMu.Unlock()
+
+	return nil
+}

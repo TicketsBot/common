@@ -43,3 +43,8 @@ func (c *RedisCache) SetCachedPermissionLevel(guildId, userId uint64, level Perm
 	key := fmt.Sprintf("permissions:%d:%d", guildId, userId)
 	return c.client.Set(utils.DefaultContext(), key, level.Int(), redisTimeout).Err()
 }
+
+func (c *RedisCache) DeleteCachedPermissionLevel(guildId, userId uint64) error {
+	key := fmt.Sprintf("permissions:%d:%d", guildId, userId)
+	return c.client.Del(utils.DefaultContext(), key).Err()
+}
