@@ -8,8 +8,9 @@ import (
 )
 
 type Ticket struct {
-	GuildId  uint64 `json:"guild_id"`
-	TicketId int    `json:"ticket_id"`
+	GuildId       uint64  `json:"guild_id"`
+	TicketId      int     `json:"ticket_id"`
+	LastMessageId *uint64 `json:"last_message_id"`
 }
 
 const channel = "tickets:autoclose"
