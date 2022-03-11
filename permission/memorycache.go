@@ -84,11 +84,11 @@ func (c *MemoryCache) DeleteCachedPermissionLevel(guildId, userId uint64) error 
 	delete(c.store, member)
 	c.mu.Unlock()
 
+	c.cancelRemovalMu.Lock()
 	if existing, ok := c.cancelRemoval[member]; ok {
 		existing <- struct{}{}
 	}
 
-	c.cancelRemovalMu.Lock()
 	delete(c.cancelRemoval, member)
 	c.cancelRemovalMu.Unlock()
 
