@@ -1,6 +1,7 @@
 package premium
 
 import (
+	"github.com/TicketsBot/common/sentry"
 	"github.com/rxdn/gdl/objects/guild"
 )
 
@@ -11,10 +12,16 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 	defer func() {
 		// cache result
 		if _err == nil {
-			go p.SetCachedTier(guild.Id, CachedTier{
-				Tier:   int8(_tier),
-				Source: _src,
-			})
+			go func() {
+				err := p.SetCachedTier(guild.Id, CachedTier{
+					Tier:   int8(_tier),
+					Source: _src,
+				})
+
+				if err != nil {
+					sentry.Error(err)
+				}
+			}()
 		}
 	}()
 
