@@ -28,16 +28,18 @@ func Initialise(options Options) (err error) {
 }
 
 // log raw error
-func Error(err error) {
-	raven.Capture(constructErrorPacket(err), nil)
+func Error(err error) string {
+	eventId, _ := raven.Capture(constructErrorPacket(err), nil)
 
 	if logger != nil {
 		logger.Error(err.Error())
 	}
+
+	return eventId
 }
 
-func ErrorWithContext(err error, ctx ErrorContext) {
-	raven.Capture(constructErrorPacket(err), ctx.ToMap())
+func ErrorWithContext(err error, ctx ErrorContext) string {
+	eventId, _ := raven.Capture(constructErrorPacket(err), ctx.ToMap())
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -47,18 +49,22 @@ func ErrorWithContext(err error, ctx ErrorContext) {
 
 		logger.WithFields(fields).Error(err.Error())
 	}
+
+	return eventId
 }
 
-func Log(msg string, extra map[string]interface{}) {
-	raven.Capture(constructLogPacket(msg, extra), nil)
+func Log(msg string, extra map[string]interface{}) string {
+	eventId, _ := raven.Capture(constructLogPacket(msg, extra), nil)
 
 	if logger != nil {
 		logger.WithFields(extra).Info(msg)
 	}
+
+	return eventId
 }
 
-func LogWithTags(msg string, extra map[string]interface{}, tags map[string]string) {
-	raven.Capture(constructLogPacket(msg, extra), tags)
+func LogWithTags(msg string, extra map[string]interface{}, tags map[string]string) string {
+	eventId, _ := raven.Capture(constructLogPacket(msg, extra), tags)
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -71,10 +77,12 @@ func LogWithTags(msg string, extra map[string]interface{}, tags map[string]strin
 
 		logger.WithFields(fields).Info(msg)
 	}
+
+	return eventId
 }
 
-func LogWithContext(err error, ctx ErrorContext) {
-	raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
+func LogWithContext(err error, ctx ErrorContext) string {
+	eventId, _ := raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -84,4 +92,6 @@ func LogWithContext(err error, ctx ErrorContext) {
 
 		logger.WithFields(fields).Info(err.Error())
 	}
+
+	return eventId
 }
