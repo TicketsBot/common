@@ -28,6 +28,10 @@ func (c *MockLookupClient) SetCachedTier(uint64, CachedTier) error {
 	return nil
 }
 
+func (c *MockLookupClient) DeleteCachedTier(uint64) error {
+	return nil
+}
+
 func (c *MockLookupClient) GetTierByGuild(guild.Guild) (PremiumTier, Source, error) {
 	return c.Tier, c.Source, nil
 }

@@ -11,6 +11,7 @@ import (
 type IPremiumLookupClient interface {
 	GetCachedTier(uint64) (CachedTier, error)
 	SetCachedTier(uint64, CachedTier) error
+	DeleteCachedTier(uint64) error
 
 	GetTierByGuild(guild.Guild) (PremiumTier, Source, error)
 	GetTierByGuildId(uint64, bool, string, *ratelimit.Ratelimiter) (PremiumTier, error)

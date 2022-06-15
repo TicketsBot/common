@@ -38,3 +38,8 @@ func (p *PremiumLookupClient) SetCachedTier(id uint64, data CachedTier) (err err
 
 	return p.redis.Set(utils.DefaultContext(), key, string(marshalled), timeout).Err()
 }
+
+func (p *PremiumLookupClient) DeleteCachedTier(id uint64) (err error) {
+	key := fmt.Sprintf("premium:%d", id)
+	return p.redis.Del(utils.DefaultContext(), key).Err()
+}
