@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/jackc/pgx/v4 v4.6.0
 	github.com/klauspost/compress v1.10.3
-	github.com/rxdn/gdl v0.0.0-20210527173953-25dde613ff0a
+	github.com/rxdn/gdl v0.0.0-20220702190021-560b2ab99d25
 	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
@@ -22,8 +22,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/fatih/structs v1.1.0 // indirect
-	github.com/go-redis/redis v6.15.7+incompatible // indirect
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.5.0 // indirect

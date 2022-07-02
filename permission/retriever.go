@@ -16,6 +16,7 @@ type Retriever interface {
 	GetChannel(uint64) (channel.Channel, error)
 	GetGuildMember(guildId, userId uint64) (member.Member, error)
 	GetGuildRoles(uint64) ([]guild.Role, error)
+	GetGuildOwner(uint64) (uint64, error)
 }
 
 func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, returnedError error) {
@@ -39,8 +40,8 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}()
 
 	// Check if user is guild owner
-	if guild, err := retriever.GetGuild(guildId); err == nil {
-		if member.User.Id == guild.OwnerId {
+	if guildOwner, err := retriever.GetGuildOwner(guildId); err == nil {
+		if member.User.Id == guildOwner {
 			return Admin, nil
 		}
 	} else {
@@ -57,7 +58,8 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check roles from DB
-	adminRoles, err := retriever.Db().RolePermissions.GetAdminRoles(guildId); if err != nil {
+	adminRoles, err := retriever.Db().RolePermissions.GetAdminRoles(guildId)
+	if err != nil {
 		return Everyone, err
 	}
 
