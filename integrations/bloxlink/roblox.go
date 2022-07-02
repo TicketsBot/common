@@ -1,4 +1,4 @@
-package roblox
+package bloxlink
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type User struct {
 }
 
 func RequestUserData(proxy *webproxy.WebProxy, robloxId int) (User, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://users.roblox.com/v1/users/%d", robloxId), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://users.bloxlink.com/v1/users/%d", robloxId), nil)
 	if err != nil {
 		return User{}, err
 	}

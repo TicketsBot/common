@@ -1,4 +1,4 @@
-package roblox
+package bloxlink
 
 import (
 	"encoding/json"
@@ -15,7 +15,10 @@ type BloxlinkResponse struct {
 	} `json:"user"`
 }
 
-var ErrQuotaExceeded = fmt.Errorf("Bloxlink API quota exceeded")
+var (
+	ErrQuotaExceeded = fmt.Errorf("Bloxlink API quota exceeded")
+	ErrUserNotFound  = fmt.Errorf("User not found")
+)
 
 func RequestUserId(proxy *webproxy.WebProxy, bloxlinkApiKey string, userId uint64) (int, error) {
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://v3.blox.link/developer/discord/%d", userId), nil)
@@ -42,6 +45,10 @@ func RequestUserId(proxy *webproxy.WebProxy, bloxlinkApiKey string, userId uint6
 		} else {
 			return 0, fmt.Errorf("Bloxlink API request unsuccessful")
 		}
+	}
+
+	if response.User.RobloxId == 0 {
+		return 0, ErrUserNotFound
 	}
 
 	return response.User.RobloxId, nil
