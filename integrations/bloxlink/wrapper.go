@@ -17,7 +17,7 @@ type (
 	}
 
 	cachedUser struct {
-		User *User `json:"user,omitempty"` // If the user does not exist, this will be nil, making a separate bool redundant
+		User *User `json:"user"` // If the user does not exist, this will be nil, making a separate bool redundant
 	}
 )
 
