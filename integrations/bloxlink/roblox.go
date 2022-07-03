@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"github.com/TicketsBot/common/webproxy"
 	"net/http"
+	"time"
 )
 
 type User struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	DisplayName string `json:"displayName"`
-	Description string `json:"description"`
-	IsBanned    bool   `json:"isBanned"`
-	Created     string `json:"created"`
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	DisplayName string    `json:"displayName"`
+	Description string    `json:"description"`
+	IsBanned    bool      `json:"isBanned"`
+	Created     time.Time `json:"created"`
 }
 
 func RequestUserData(proxy *webproxy.WebProxy, robloxId int) (User, error) {
