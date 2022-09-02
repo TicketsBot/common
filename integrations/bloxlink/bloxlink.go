@@ -13,6 +13,7 @@ type BloxlinkResponse struct {
 		RobloxId       int `json:"robloxId,string"`
 		PrimaryAccount int `json:"primaryAccount,string"`
 	} `json:"user"`
+	Error string `json:"error"`
 }
 
 var (
@@ -42,8 +43,10 @@ func RequestUserId(proxy *webproxy.WebProxy, bloxlinkApiKey string, userId uint6
 	if !response.Success {
 		if res.Header.Get("Quota-Remaining") == "0" {
 			return 0, ErrQuotaExceeded
+		} else if response.Error == "The specified user is not verified with Bloxlink." {
+			return 0, ErrUserNotFound
 		} else {
-			return 0, fmt.Errorf("Bloxlink API request unsuccessful")
+			return 0, fmt.Errorf("Bloxlink API request unsuccessful: %s", response.Error)
 		}
 	}
 
