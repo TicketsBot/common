@@ -2,11 +2,11 @@ package secureproxy
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/TicketsBot/common/sentry"
-	"github.com/TicketsBot/common/utils"
 	"io/ioutil"
 	"net/http"
 )
@@ -24,21 +24,35 @@ func NewSecureProxy(url string) *Client {
 }
 
 type secureProxyRequest struct {
-	Method  string            `json:"method"`
-	Url     string            `json:"url"`
-	Headers map[string]string `json:"headers,omitempty"`
-	Body    *string           `json:"body,omitempty"`
+	Method   string            `json:"method"`
+	Url      string            `json:"url"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Body     []byte            `json:"body,omitempty"`
+	JsonBody json.RawMessage   `json:"json_body,omitempty"`
 }
 
-func (p *Client) DoRequest(method, url string, headers map[string]string, bodyData []byte) ([]byte, error) {
+type requestBody interface {
+	[]byte | any
+}
+
+func (p *Client) DoRequest(method, url string, headers map[string]string, bodyData requestBody) ([]byte, error) {
 	body := secureProxyRequest{
 		Method:  method,
 		Url:     url,
 		Headers: headers,
 	}
 
-	if bodyData != nil {
-		body.Body = utils.Ptr(string(bodyData))
+	// nil will fall through
+	switch v := bodyData.(type) {
+	case []byte:
+		base64.StdEncoding.Encode(body.Body, v)
+	case any:
+		encoded, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+
+		body.JsonBody = json.RawMessage(encoded)
 	}
 
 	encoded, err := json.Marshal(body)
