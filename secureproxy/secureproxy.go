@@ -74,7 +74,7 @@ func (p *Client) DoRequest(method, url string, headers map[string]string, bodyDa
 	}
 
 	if res.StatusCode != 200 {
-		return nil, 0, fmt.Errorf("integration request returned status code %d", res.StatusCode)
+		return nil, res.StatusCode, fmt.Errorf("integration request returned status code %d", res.StatusCode)
 	}
 
 	statusRaw := res.Header.Get("x-status-code")
