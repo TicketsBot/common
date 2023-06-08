@@ -9,6 +9,7 @@ import (
 	"github.com/TicketsBot/common/sentry"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type Client struct {
@@ -35,7 +36,7 @@ type requestBody interface {
 	[]byte | any
 }
 
-func (p *Client) DoRequest(method, url string, headers map[string]string, bodyData requestBody) ([]byte, error) {
+func (p *Client) DoRequest(method, url string, headers map[string]string, bodyData requestBody) ([]byte, int, error) {
 	body := secureProxyRequest{
 		Method:  method,
 		Url:     url,
@@ -49,7 +50,7 @@ func (p *Client) DoRequest(method, url string, headers map[string]string, bodyDa
 	case any:
 		encoded, err := json.Marshal(v)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		body.JsonBody = json.RawMessage(encoded)
@@ -57,29 +58,39 @@ func (p *Client) DoRequest(method, url string, headers map[string]string, bodyDa
 
 	encoded, err := json.Marshal(body)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	res, err := p.client.Post(p.Url+"/proxy", "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
 		sentry.Error(err)
-		return nil, errors.New("error proxying request")
+		return nil, 0, errors.New("error proxying request")
 	}
 
 	defer res.Body.Close()
 
 	if errorHeader := res.Header.Get("x-proxy-error"); errorHeader != "" {
-		return nil, errors.New(errorHeader)
+		return nil, 0, errors.New(errorHeader)
 	}
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("integration request returned status code %d", res.StatusCode)
+		return nil, 0, fmt.Errorf("integration request returned status code %d", res.StatusCode)
+	}
+
+	statusRaw := res.Header.Get("x-status-code")
+	if statusRaw == "" {
+		return nil, 0, errors.New("response missing x-status-code header")
+	}
+
+	statusCode, err := strconv.Atoi(statusRaw)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return resBody, nil
+	return resBody, statusCode, nil
 }
