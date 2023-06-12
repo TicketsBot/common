@@ -1,20 +1,18 @@
 package sentry
 
 import (
-	"github.com/getsentry/raven-go"
+	"github.com/getsentry/sentry-go"
 	wrapper "github.com/go-errors/errors"
 	"github.com/rxdn/gdl/rest/request"
 	"os"
 	"time"
 )
 
-var project string
-
-func constructErrorPacket(e error) *raven.Packet {
-	return constructPacket(e, raven.ERROR)
+func constructErrorPacket(e error, tags map[string]string) *sentry.Event {
+	return constructPacket(e, sentry.LevelError, tags)
 }
 
-func constructPacket(e error, level raven.Severity) *raven.Packet {
+func constructPacket(e error, level sentry.Level, tags map[string]string) *sentry.Event {
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "null"
@@ -31,28 +29,28 @@ func constructPacket(e error, level raven.Severity) *raven.Packet {
 		extra["raw"] = string(restError.Raw)
 	}
 
-	return &raven.Packet{
+	return &sentry.Event{
 		Message:    e.Error(),
 		Extra:      extra,
-		Project:    project,
-		Timestamp:  raven.Timestamp(time.Now()),
+		Timestamp:  time.Now(),
 		Level:      level,
 		ServerName: hostname,
+		Tags:       tags,
 	}
 }
 
-func constructLogPacket(msg string, extra map[string]interface{}) *raven.Packet {
+func constructLogPacket(msg string, extra map[string]interface{}, tags map[string]string) *sentry.Event {
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "null"
 	}
 
-	return &raven.Packet{
+	return &sentry.Event{
 		Message:    msg,
 		Extra:      extra,
-		Project:    project,
-		Timestamp:  raven.Timestamp(time.Now()),
-		Level:      raven.INFO,
+		Timestamp:  time.Now(),
+		Level:      sentry.LevelInfo,
 		ServerName: hostname,
+		Tags:       tags,
 	}
 }

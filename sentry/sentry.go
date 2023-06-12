@@ -1,24 +1,17 @@
 package sentry
 
 import (
-	"github.com/getsentry/raven-go"
+	"github.com/TicketsBot/common/utils"
+	"github.com/getsentry/sentry-go"
 	"github.com/sirupsen/logrus"
 )
 
-type Options struct {
-	Dsn     string
-	Project string
-	Debug   bool
-}
-
 var logger *logrus.Logger = nil
 
-func Initialise(options Options) (err error) {
-	if err = raven.SetDSN(options.Dsn); err != nil {
-		return
+func Initialise(options sentry.ClientOptions) (err error) {
+	if err := sentry.Init(options); err != nil {
+		return err
 	}
-
-	project = options.Project
 
 	if options.Debug {
 		logger = logrus.New()
@@ -29,17 +22,17 @@ func Initialise(options Options) (err error) {
 
 // log raw error
 func Error(err error) string {
-	eventId, _ := raven.Capture(constructErrorPacket(err), nil)
+	eventId := sentry.CaptureEvent(constructErrorPacket(err, nil))
 
 	if logger != nil {
 		logger.Error(err.Error())
 	}
 
-	return eventId
+	return string(utils.ValueOrZero(eventId))
 }
 
 func ErrorWithContext(err error, ctx ErrorContext) string {
-	eventId, _ := raven.Capture(constructErrorPacket(err), ctx.ToMap())
+	eventId := sentry.CaptureEvent(constructErrorPacket(err, ctx.ToMap()))
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -50,21 +43,21 @@ func ErrorWithContext(err error, ctx ErrorContext) string {
 		logger.WithFields(fields).Error(err.Error())
 	}
 
-	return eventId
+	return string(utils.ValueOrZero(eventId))
 }
 
 func Log(msg string, extra map[string]interface{}) string {
-	eventId, _ := raven.Capture(constructLogPacket(msg, extra), nil)
+	eventId := sentry.CaptureEvent(constructLogPacket(msg, extra, nil))
 
 	if logger != nil {
 		logger.WithFields(extra).Info(msg)
 	}
 
-	return eventId
+	return string(utils.ValueOrZero(eventId))
 }
 
 func LogWithTags(msg string, extra map[string]interface{}, tags map[string]string) string {
-	eventId, _ := raven.Capture(constructLogPacket(msg, extra), tags)
+	eventId := sentry.CaptureEvent(constructLogPacket(msg, extra, tags))
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -78,11 +71,11 @@ func LogWithTags(msg string, extra map[string]interface{}, tags map[string]strin
 		logger.WithFields(fields).Info(msg)
 	}
 
-	return eventId
+	return string(utils.ValueOrZero(eventId))
 }
 
 func LogWithContext(err error, ctx ErrorContext) string {
-	eventId, _ := raven.Capture(constructPacket(err, raven.INFO), ctx.ToMap())
+	eventId := sentry.CaptureEvent(constructPacket(err, sentry.LevelInfo, ctx.ToMap()))
 
 	if logger != nil {
 		fields := make(map[string]interface{})
@@ -93,5 +86,5 @@ func LogWithContext(err error, ctx ErrorContext) string {
 		logger.WithFields(fields).Info(err.Error())
 	}
 
-	return eventId
+	return string(utils.ValueOrZero(eventId))
 }
