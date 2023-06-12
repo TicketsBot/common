@@ -8,8 +8,10 @@ import (
 
 var logger *logrus.Logger = nil
 
-func Initialise(options sentry.ClientOptions) (err error) {
-	if err := sentry.Init(options); err != nil {
+type Options sentry.ClientOptions
+
+func Initialise(options Options) (err error) {
+	if err := sentry.Init(sentry.ClientOptions(options)); err != nil {
 		return err
 	}
 
