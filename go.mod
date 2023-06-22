@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/jackc/pgx/v4 v4.6.0
 	github.com/klauspost/compress v1.16.0
-	github.com/rxdn/gdl v0.0.0-20220702190021-560b2ab99d25
+	github.com/rxdn/gdl v0.0.0-20230622203838-cad65ada73f0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9

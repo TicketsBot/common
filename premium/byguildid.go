@@ -29,7 +29,7 @@ func (p *PremiumLookupClient) GetTierByGuildIdWithSource(guildId uint64, botToke
 	}
 
 	// retrieve guild object
-	guild, found := p.cache.GetGuild(guildId, false)
+	guild, found := p.cache.GetGuild(guildId)
 	if !found {
 		var err error
 		guild, err = rest.GetGuild(botToken, ratelimiter, guildId)
