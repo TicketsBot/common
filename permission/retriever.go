@@ -2,8 +2,6 @@ package permission
 
 import (
 	"github.com/TicketsBot/database"
-	"github.com/rxdn/gdl/objects/channel"
-	"github.com/rxdn/gdl/objects/guild"
 	"github.com/rxdn/gdl/objects/member"
 	"github.com/rxdn/gdl/permission"
 )
@@ -12,10 +10,6 @@ type Retriever interface {
 	Db() *database.Database
 	Cache() PermissionCache
 	IsBotAdmin(uint64) bool
-	GetGuild(uint64) (guild.Guild, error)
-	GetChannel(uint64) (channel.Channel, error)
-	GetGuildMember(guildId, userId uint64) (member.Member, error)
-	GetGuildRoles(uint64) ([]guild.Role, error)
 	GetGuildOwner(uint64) (uint64, error)
 }
 
@@ -38,6 +32,11 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 			returnedError = retriever.Cache().SetCachedPermissionLevel(guildId, member.User.Id, permLevel)
 		}
 	}()
+
+	// Check if user has Administrator permission
+	if member.Permissions > 0 && permission.HasPermissionRaw(member.Permissions, permission.Administrator) {
+		return Admin, nil
+	}
 
 	// Check if user is guild owner
 	if guildOwner, err := retriever.GetGuildOwner(guildId); err == nil {
@@ -67,12 +66,6 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 		if member.HasRole(adminRoleId) {
 			return Admin, nil
 		}
-	}
-
-	// Check if user has Administrator permission
-	hasAdminPermission := HasPermissions(retriever, guildId, member.User.Id, permission.Administrator)
-	if hasAdminPermission {
-		return Admin, nil
 	}
 
 	// Check user perms for support
