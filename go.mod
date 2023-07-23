@@ -12,6 +12,7 @@ require (
 	github.com/rxdn/gdl v0.0.0-20230622203838-cad65ada73f0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
+	go.uber.org/zap v1.10.0
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 )
 
@@ -39,6 +40,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tatsuworks/czlib v0.0.0-20190916144400-8a51758ea0d9 // indirect
+	go.uber.org/atomic v1.4.0 // indirect
+	go.uber.org/multierr v1.1.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

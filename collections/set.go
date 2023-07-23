@@ -1,5 +1,7 @@
 package collections
 
+import "encoding/json"
+
 type Set[T comparable] struct {
 	inner map[T]struct{}
 }
@@ -38,4 +40,21 @@ func (s *Set[T]) Collect() []T {
 	}
 
 	return slice
+}
+
+func (s *Set[T]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.Collect())
+}
+
+func (s *Set[T]) UnmarshalJSON(data []byte) error {
+	var slice []T
+	if err := json.Unmarshal(data, &slice); err != nil {
+		return err
+	}
+
+	for _, item := range slice {
+		s.Add(item)
+	}
+
+	return nil
 }

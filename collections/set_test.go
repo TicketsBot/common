@@ -53,3 +53,28 @@ func TestCollect(t *testing.T) {
 		assert.EqualValues(t, i, slice[i])
 	}
 }
+
+func TestMarshalJson(t *testing.T) {
+	s := NewSet[int]()
+
+	s.Add(1)
+	s.Add(2)
+	s.Add(3)
+
+	bytes, err := s.MarshalJSON()
+	assert.NoError(t, err)
+
+	assert.EqualValues(t, "[1,2,3]", string(bytes))
+}
+
+func TestUnmarshalJson(t *testing.T) {
+	s := NewSet[int]()
+
+	err := s.UnmarshalJSON([]byte("[1,2,3]"))
+	assert.NoError(t, err)
+
+	assert.EqualValues(t, 3, s.Size())
+	assert.EqualValues(t, true, s.Contains(1))
+	assert.EqualValues(t, true, s.Contains(2))
+	assert.EqualValues(t, true, s.Contains(3))
+}
