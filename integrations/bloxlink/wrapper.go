@@ -67,14 +67,12 @@ func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) 
 	robloxId, err := RequestUserId(i.proxy, i.apiKey, discordUserId)
 	if err != nil {
 		if err == ErrUserNotFound { // If user not found, we should still cache this
-			go func() {
-				encoded, err := json.Marshal(newNullUser())
-				if err != nil {
-					return
-				}
+			encoded, err := json.Marshal(newNullUser())
+			if err != nil {
+				return User{}, err
+			}
 
-				i.redis.SetEX(context.Background(), redisKey, encoded, cacheLength)
-			}()
+			i.redis.SetEX(context.Background(), redisKey, encoded, cacheLength)
 		}
 
 		return User{}, err
@@ -87,14 +85,12 @@ func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) 
 	}
 
 	// Cache response
-	go func() {
-		encoded, err := json.Marshal(newCachedUser(user))
-		if err != nil {
-			return
-		}
+	encoded, err := json.Marshal(newCachedUser(user))
+	if err != nil {
+		return User{}, err
+	}
 
-		i.redis.SetEX(context.Background(), redisKey, string(encoded), cacheLength)
-	}()
+	i.redis.SetEX(context.Background(), redisKey, string(encoded), cacheLength)
 
 	return user, nil
 }
