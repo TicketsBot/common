@@ -36,12 +36,12 @@ func NewRedisRestCache(client *redis.Client, botToken string, ratelimiter *ratel
 }
 
 func (c *RedisRestCache) GetGuildRoles(guildId uint64) ([]guild.Role, error) {
-	context, cancel := context.WithTimeout(context.Background(), LockTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), LockTimeout)
 	defer cancel()
 
 	var roles []guild.Role
-	err := getOrFetch(c, context, fmt.Sprintf("roles:%d", guildId), &roles, func() ([]guild.Role, error) {
-		return rest.GetGuildRoles(c.botToken, c.ratelimiter, guildId)
+	err := getOrFetch(c, ctx, fmt.Sprintf("roles:%d", guildId), &roles, func() ([]guild.Role, error) {
+		return rest.GetGuildRoles(context.Background(), c.botToken, c.ratelimiter, guildId)
 	})
 
 	if err != nil {

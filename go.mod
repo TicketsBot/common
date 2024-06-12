@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/jackc/pgx/v4 v4.6.0
 	github.com/klauspost/compress v1.16.0
-	github.com/rxdn/gdl v0.0.0-20230622203838-cad65ada73f0
+	github.com/rxdn/gdl v0.0.0-20240612163900-621eccf40179
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.10.0

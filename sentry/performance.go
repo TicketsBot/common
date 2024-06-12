@@ -5,6 +5,10 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
-func StartSpan(context context.Context, operationName string) *sentry.Span {
-	return sentry.StartSpan(context, operationName)
+func StartTransaction(ctx context.Context, operation string, options ...sentry.SpanOption) *sentry.Span {
+	return sentry.StartTransaction(ctx, operation, options...)
+}
+
+func StartSpan(ctx context.Context, operation string, options ...sentry.SpanOption) *sentry.Span {
+	return sentry.StartSpan(ctx, operation, options...)
 }

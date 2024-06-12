@@ -1,7 +1,10 @@
 package premium
 
 import (
+	"context"
+	"errors"
 	"github.com/go-redis/redis/v8"
+	"github.com/rxdn/gdl/cache"
 	"github.com/rxdn/gdl/rest"
 	"github.com/rxdn/gdl/rest/ratelimit"
 )
@@ -29,15 +32,17 @@ func (p *PremiumLookupClient) GetTierByGuildIdWithSource(guildId uint64, botToke
 	}
 
 	// retrieve guild object
-	guild, found := p.cache.GetGuild(guildId)
-	if !found {
+	guild, err := p.cache.GetGuild(context.Background(), guildId)
+	if err == nil {
 		var err error
-		guild, err = rest.GetGuild(botToken, ratelimiter, guildId)
+		guild, err = rest.GetGuild(context.Background(), botToken, ratelimiter, guildId)
 		if err != nil {
 			return None, -1, err
 		}
 
-		go p.cache.StoreGuild(guild)
+		go p.cache.StoreGuild(context.Background(), guild)
+	} else if !errors.Is(err, cache.ErrNotFound) {
+		return None, -1, err
 	}
 
 	return p.GetTierByGuild(guild)
