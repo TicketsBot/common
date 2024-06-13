@@ -4,9 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"github.com/klauspost/compress/zstd"
 	"io"
-	"runtime"
 )
 
 func Encrypt(key, data []byte) ([]byte, error) {
@@ -49,14 +47,4 @@ func Decrypt(key, encrypted []byte) ([]byte, error) {
 	}
 
 	return decrypted, err
-}
-
-var compressor, _ = zstd.NewWriter(nil, zstd.WithEncoderConcurrency(runtime.NumCPU()))
-func Compress(data []byte) []byte {
-	return compressor.EncodeAll(data, make([]byte, 0, len(data)))
-}
-
-var decompressor, _ = zstd.NewReader(nil, zstd.WithDecoderConcurrency(runtime.NumCPU()))
-func Decompress(data []byte) ([]byte, error) {
-	return decompressor.DecodeAll(data, nil)
 }
