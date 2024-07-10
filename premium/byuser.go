@@ -1,11 +1,12 @@
 package premium
 
 import (
+	"context"
 	"github.com/go-redis/redis/v8"
 )
 
-func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (PremiumTier, error) {
-	tier, source, err := p.GetTierByUserWithSource(userId)
+func (p *PremiumLookupClient) GetTierByUser(ctx context.Context, userId uint64, includeVoting bool) (PremiumTier, error) {
+	tier, source, err := p.GetTierByUserWithSource(ctx, userId)
 	if err != nil {
 		return None, err
 	}
@@ -17,12 +18,12 @@ func (p *PremiumLookupClient) GetTierByUser(userId uint64, includeVoting bool) (
 	return tier, nil
 }
 
-func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier PremiumTier, _src Source, _err error) {
+func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userId uint64) (_tier PremiumTier, _src Source, _err error) {
 	_tier = None
 	_src = -1
 
 	// check for cached result
-	cached, err := p.GetCachedTier(userId)
+	cached, err := p.GetCachedTier(ctx, userId)
 	if err != nil && err != redis.Nil {
 		return None, -1, err
 	} else if err == nil {
@@ -32,7 +33,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier Prem
 	defer func() {
 		// cache result
 		if _err == nil {
-			go p.SetCachedTier(userId, CachedTier{
+			go p.SetCachedTier(ctx, userId, CachedTier{
 				Tier:   int8(_tier),
 				Source: _src,
 			})
@@ -40,7 +41,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier Prem
 	}()
 
 	// check patreon
-	patreonTier, err := p.patreonClient.GetTier(userId)
+	patreonTier, err := p.patreonClient.GetTier(ctx, userId)
 	if err != nil {
 		return None, -1, err
 	} else if patreonTier > None {
@@ -48,7 +49,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier Prem
 	}
 
 	// check whitelabel keys
-	isWhitelabel, err := p.hasWhitelabelKey(userId)
+	isWhitelabel, err := p.hasWhitelabelKey(ctx, userId)
 	if err != nil {
 		return None, -1, err
 	} else if isWhitelabel {
@@ -56,7 +57,7 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier Prem
 	}
 
 	// check for votes
-	votingTier, err := p.hasVoted(userId)
+	votingTier, err := p.hasVoted(ctx, userId)
 	if err != nil {
 		return None, -1, err
 	} else if votingTier > None {
@@ -66,12 +67,12 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(userId uint64) (_tier Prem
 	return None, -1, nil
 }
 
-func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier, src Source, _err error) {
+func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint64) (tier PremiumTier, src Source, _err error) {
 	tier = None
 	src = -1
 
 	// check patreon
-	patreonTier, err := p.patreonClient.GetTier(userIds...)
+	patreonTier, err := p.patreonClient.GetTier(ctx, userIds...)
 	if err != nil {
 		return None, -1, err
 	} else if patreonTier > tier {
@@ -84,7 +85,7 @@ func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier
 	}
 
 	// check whitelabel keys
-	isWhitelabel, err := p.hasWhitelabelKey(userIds...)
+	isWhitelabel, err := p.hasWhitelabelKey(ctx, userIds...)
 	if err != nil {
 		return None, -1, err
 	} else if isWhitelabel {
@@ -93,7 +94,7 @@ func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier
 	// check for votes
 	// we can skip here if already premium
 	if tier == None {
-		votingTier, err := p.hasVoted(userIds...)
+		votingTier, err := p.hasVoted(ctx, userIds...)
 		if err != nil {
 			return None, -1, err
 		} else if votingTier > tier {
@@ -104,8 +105,8 @@ func (p *PremiumLookupClient) getTierByUsers(userIds []uint64) (tier PremiumTier
 	return
 }
 
-func (p *PremiumLookupClient) hasVoted(userIds ...uint64) (PremiumTier, error) {
-	isPremium, err := p.database.Votes.Any(userIds...)
+func (p *PremiumLookupClient) hasVoted(ctx context.Context, userIds ...uint64) (PremiumTier, error) {
+	isPremium, err := p.database.Votes.Any(ctx, userIds...)
 	if err != nil {
 		return None, err
 	}
@@ -117,6 +118,6 @@ func (p *PremiumLookupClient) hasVoted(userIds ...uint64) (PremiumTier, error) {
 	}
 }
 
-func (p *PremiumLookupClient) hasWhitelabelKey(userIds ...uint64) (bool, error) {
-	return p.database.WhitelabelUsers.AnyPremium(userIds)
+func (p *PremiumLookupClient) hasWhitelabelKey(ctx context.Context, userIds ...uint64) (bool, error) {
+	return p.database.WhitelabelUsers.AnyPremium(ctx, userIds)
 }

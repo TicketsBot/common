@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	client := createClient()
-	tier, src, err := client.GetTierByUserWithSource(*userId)
+	tier, src, err := client.GetTierByUserWithSource(context.Background(), *userId)
 	must(err)
 
 	fmt.Printf("%s via %s\n", tier, src)
@@ -28,9 +28,9 @@ func createClient() *premium.PremiumLookupClient {
 	patreonClient := premium.NewPatreonClient(os.Getenv("PATREON_URL"), os.Getenv("PATREON_KEY"))
 
 	redisClient := redis.NewClient(&redis.Options{
-		Network:            "tcp",
-		Addr:               os.Getenv("REDIS_ADDR"),
-		Password:           os.Getenv("REDIS_PASSWORD"),
+		Network:  "tcp",
+		Addr:     os.Getenv("REDIS_ADDR"),
+		Password: os.Getenv("REDIS_PASSWORD"),
 	})
 
 	cachePool, err := pgxpool.Connect(context.Background(), os.Getenv("CACHE_URI"))

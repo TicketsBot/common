@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -15,6 +16,8 @@ type MemoryCache struct {
 	cancelRemovalMu sync.RWMutex
 }
 
+var _ PermissionCache = (*MemoryCache)(nil)
+
 func NewMemoryCache() *MemoryCache {
 	return &MemoryCache{
 		store:         make(map[memberId]PermissionLevel),
@@ -26,7 +29,7 @@ type memberId struct {
 	GuildId, UserId uint64
 }
 
-func (c *MemoryCache) GetCachedPermissionLevel(guildId, userId uint64) (PermissionLevel, error) {
+func (c *MemoryCache) GetCachedPermissionLevel(_ context.Context, guildId, userId uint64) (PermissionLevel, error) {
 	member := memberId{guildId, userId}
 
 	c.mu.RLock()
@@ -40,7 +43,7 @@ func (c *MemoryCache) GetCachedPermissionLevel(guildId, userId uint64) (Permissi
 	return level, nil
 }
 
-func (c *MemoryCache) SetCachedPermissionLevel(guildId, userId uint64, level PermissionLevel) error {
+func (c *MemoryCache) SetCachedPermissionLevel(_ context.Context, guildId, userId uint64, level PermissionLevel) error {
 	member := memberId{guildId, userId}
 
 	c.cancelRemovalMu.Lock()
@@ -77,7 +80,7 @@ func (c *MemoryCache) SetCachedPermissionLevel(guildId, userId uint64, level Per
 	return nil
 }
 
-func (c *MemoryCache) DeleteCachedPermissionLevel(guildId, userId uint64) error {
+func (c *MemoryCache) DeleteCachedPermissionLevel(_ context.Context, guildId, userId uint64) error {
 	member := memberId{guildId, userId}
 
 	c.mu.Lock()

@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"github.com/TicketsBot/database"
 	"github.com/rxdn/gdl/objects/member"
 	"github.com/rxdn/gdl/permission"
@@ -9,27 +10,27 @@ import (
 type Retriever interface {
 	Db() *database.Database
 	Cache() PermissionCache
-	IsBotAdmin(uint64) bool
-	GetGuildOwner(uint64) (uint64, error)
+	IsBotAdmin(ctx context.Context, userId uint64) bool
+	GetGuildOwner(ctx context.Context, guildId uint64) (uint64, error)
 }
 
-func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, returnedError error) {
+func GetPermissionLevel(ctx context.Context, retriever Retriever, member member.Member, guildId uint64) (permLevel PermissionLevel, returnedError error) {
 	// Check user ID in cache
-	if cached, err := retriever.Cache().GetCachedPermissionLevel(guildId, member.User.Id); err == nil {
+	if cached, err := retriever.Cache().GetCachedPermissionLevel(ctx, guildId, member.User.Id); err == nil {
 		return cached, nil
 	} else if err != ErrNotCached {
 		return Everyone, err
 	}
 
 	// Check if the user is a bot admin user
-	if retriever.IsBotAdmin(member.User.Id) {
+	if retriever.IsBotAdmin(ctx, member.User.Id) {
 		return Admin, nil
 	}
 
 	// Don't recache if already cached (for now?)
 	defer func() {
 		if returnedError == nil {
-			returnedError = retriever.Cache().SetCachedPermissionLevel(guildId, member.User.Id, permLevel)
+			returnedError = retriever.Cache().SetCachedPermissionLevel(ctx, guildId, member.User.Id, permLevel)
 		}
 	}()
 
@@ -39,7 +40,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check if user is guild owner
-	if guildOwner, err := retriever.GetGuildOwner(guildId); err == nil {
+	if guildOwner, err := retriever.GetGuildOwner(ctx, guildId); err == nil {
 		if member.User.Id == guildOwner {
 			return Admin, nil
 		}
@@ -48,7 +49,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check user perms for admin
-	if adminUser, err := retriever.Db().Permissions.IsAdmin(guildId, member.User.Id); err == nil {
+	if adminUser, err := retriever.Db().Permissions.IsAdmin(ctx, guildId, member.User.Id); err == nil {
 		if adminUser {
 			return Admin, nil
 		}
@@ -57,7 +58,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check roles from DB
-	adminRoles, err := retriever.Db().RolePermissions.GetAdminRoles(guildId)
+	adminRoles, err := retriever.Db().RolePermissions.GetAdminRoles(ctx, guildId)
 	if err != nil {
 		return Everyone, err
 	}
@@ -69,7 +70,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check user perms for support
-	if isSupport, err := retriever.Db().Permissions.IsSupport(guildId, member.User.Id); err == nil {
+	if isSupport, err := retriever.Db().Permissions.IsSupport(ctx, guildId, member.User.Id); err == nil {
 		if isSupport {
 			return Support, nil
 		}
@@ -78,7 +79,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check if user is a member of a support team
-	if isSupport, err := retriever.Db().SupportTeamMembers.IsSupport(guildId, member.User.Id); err == nil {
+	if isSupport, err := retriever.Db().SupportTeamMembers.IsSupport(ctx, guildId, member.User.Id); err == nil {
 		if isSupport {
 			return Support, nil
 		}
@@ -87,7 +88,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check DB for support roles
-	supportRoles, err := retriever.Db().RolePermissions.GetSupportRoles(guildId)
+	supportRoles, err := retriever.Db().RolePermissions.GetSupportRoles(ctx, guildId)
 	if err != nil {
 		return Everyone, err
 	}
@@ -99,7 +100,7 @@ func GetPermissionLevel(retriever Retriever, member member.Member, guildId uint6
 	}
 
 	// Check if user has a role assigned to a support team
-	if isSupport, err := retriever.Db().SupportTeamRoles.IsSupportAny(guildId, member.Roles); err == nil {
+	if isSupport, err := retriever.Db().SupportTeamRoles.IsSupportAny(ctx, guildId, member.Roles); err == nil {
 		if isSupport {
 			return Support, nil
 		}

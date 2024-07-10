@@ -1,6 +1,7 @@
 package premium
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,14 +38,21 @@ type proxyResponse struct {
 	Tier    int
 }
 
-func (p *PatreonClient) GetTier(userIds ...uint64) (PremiumTier, error) {
+func (p *PatreonClient) GetTier(ctx context.Context, userIds ...uint64) (PremiumTier, error) {
 	strIds := make([]string, len(userIds))
 	for i, userId := range userIds {
 		strIds[i] = strconv.FormatUint(userId, 10)
 	}
 
-	url := fmt.Sprintf("%s/ispremium?key=%s&id=%s", p.proxyUrl, p.proxyKey, strings.Join(strIds, ","))
-	res, err := p.httpClient.Get(url)
+	url := fmt.Sprintf("%s/ispremium?id=%s", p.proxyUrl, strings.Join(strIds, ","))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return None, err
+	}
+
+	req.Header.Set("Authorization", p.proxyKey)
+
+	res, err := p.httpClient.Do(req)
 	if err != nil {
 		return None, err
 	}

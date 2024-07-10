@@ -1,11 +1,12 @@
 package premium
 
 import (
+	"context"
 	"github.com/TicketsBot/common/sentry"
 	"github.com/rxdn/gdl/objects/guild"
 )
 
-func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTier, _src Source, _err error) {
+func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Guild) (_tier PremiumTier, _src Source, _err error) {
 	_tier = None
 	_src = -1
 
@@ -13,7 +14,7 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 		// cache result
 		if _err == nil {
 			go func() {
-				err := p.SetCachedTier(guild.Id, CachedTier{
+				err := p.SetCachedTier(ctx, guild.Id, CachedTier{
 					Tier:   int8(_tier),
 					Source: _src,
 				})
@@ -25,7 +26,7 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 		}
 	}()
 
-	admins, err := p.database.Permissions.GetAdmins(guild.Id)
+	admins, err := p.database.Permissions.GetAdmins(ctx, guild.Id)
 	if err != nil {
 		return None, -1, err
 	}
@@ -34,14 +35,14 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 
 	// check patreon + votes
 	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
-	adminsTier, src, err := p.getTierByUsers(admins)
+	adminsTier, src, err := p.getTierByUsers(ctx, admins)
 	if err != nil {
 		return None, -1, err
 	} else if adminsTier > None {
 		return adminsTier, src, nil
 	}
 
-	keyTier, err := p.hasKey(guild.Id)
+	keyTier, err := p.hasKey(ctx, guild.Id)
 	if err != nil {
 		return None, -1, err
 	} else if keyTier > None {
@@ -51,8 +52,8 @@ func (p *PremiumLookupClient) GetTierByGuild(guild guild.Guild) (_tier PremiumTi
 	return None, -1, nil
 }
 
-func (p *PremiumLookupClient) hasKey(guildId uint64) (PremiumTier, error) {
-	isPremium, err := p.database.PremiumGuilds.IsPremium(guildId)
+func (p *PremiumLookupClient) hasKey(ctx context.Context, guildId uint64) (PremiumTier, error) {
+	isPremium, err := p.database.PremiumGuilds.IsPremium(ctx, guildId)
 	if err != nil {
 		return None, err
 	}

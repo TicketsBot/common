@@ -1,9 +1,9 @@
 module github.com/TicketsBot/common
 
-go 1.18
+go 1.22
 
 require (
-	github.com/TicketsBot/database v0.0.0-20210902172951-4e1f8ced84b7
+	github.com/TicketsBot/database v0.0.0-20240710005219-ca0a96a7b7c5
 	github.com/getsentry/sentry-go v0.21.0
 	github.com/go-errors/errors v1.4.2
 	github.com/go-redis/redis/v8 v8.11.3

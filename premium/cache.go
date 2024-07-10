@@ -1,9 +1,9 @@
 package premium
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/TicketsBot/common/utils"
 	"time"
 )
 
@@ -16,10 +16,10 @@ const timeout = time.Minute * 5
 
 // Functions can take a user ID or guild ID
 
-func (p *PremiumLookupClient) GetCachedTier(id uint64) (tier CachedTier, err error) {
+func (p *PremiumLookupClient) GetCachedTier(ctx context.Context, id uint64) (tier CachedTier, err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
-	res, err := p.redis.Get(utils.DefaultContext(), key).Result()
+	res, err := p.redis.Get(ctx, key).Result()
 	if err != nil {
 		return
 	}
@@ -28,7 +28,7 @@ func (p *PremiumLookupClient) GetCachedTier(id uint64) (tier CachedTier, err err
 	return
 }
 
-func (p *PremiumLookupClient) SetCachedTier(id uint64, data CachedTier) (err error) {
+func (p *PremiumLookupClient) SetCachedTier(ctx context.Context, id uint64, data CachedTier) (err error) {
 	key := fmt.Sprintf("premium:%d", id)
 
 	marshalled, err := json.Marshal(data)
@@ -36,10 +36,10 @@ func (p *PremiumLookupClient) SetCachedTier(id uint64, data CachedTier) (err err
 		return
 	}
 
-	return p.redis.Set(utils.DefaultContext(), key, string(marshalled), timeout).Err()
+	return p.redis.Set(ctx, key, string(marshalled), timeout).Err()
 }
 
-func (p *PremiumLookupClient) DeleteCachedTier(id uint64) (err error) {
+func (p *PremiumLookupClient) DeleteCachedTier(ctx context.Context, id uint64) (err error) {
 	key := fmt.Sprintf("premium:%d", id)
-	return p.redis.Del(utils.DefaultContext(), key).Err()
+	return p.redis.Del(ctx, key).Err()
 }

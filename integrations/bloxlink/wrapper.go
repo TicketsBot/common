@@ -43,11 +43,11 @@ func newNullUser() cachedUser {
 
 const cacheLength = time.Hour * 24
 
-func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) {
+func (i *BloxlinkIntegration) GetRobloxUser(ctx context.Context, discordUserId uint64) (User, error) {
 	redisKey := fmt.Sprintf("bloxlink:%d", discordUserId)
 
 	// See if we have a cached value
-	cached, err := i.redis.Get(context.Background(), redisKey).Result()
+	cached, err := i.redis.Get(ctx, redisKey).Result()
 	if err == nil {
 		var user cachedUser
 		if err := json.Unmarshal([]byte(cached), &user); err != nil {
@@ -64,7 +64,7 @@ func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) 
 	}
 
 	// Fetch user ID from Bloxlink
-	robloxId, err := RequestUserId(i.proxy, i.apiKey, discordUserId)
+	robloxId, err := RequestUserId(ctx, i.proxy, i.apiKey, discordUserId)
 	if err != nil {
 		if err == ErrUserNotFound { // If user not found, we should still cache this
 			encoded, err := json.Marshal(newNullUser())
@@ -79,7 +79,7 @@ func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) 
 	}
 
 	// Fetch user object
-	user, err := RequestUserData(i.proxy, robloxId)
+	user, err := RequestUserData(ctx, i.proxy, robloxId)
 	if err != nil {
 		return User{}, err
 	}
@@ -90,7 +90,7 @@ func (i *BloxlinkIntegration) GetRobloxUser(discordUserId uint64) (User, error) 
 		return User{}, err
 	}
 
-	i.redis.SetEX(context.Background(), redisKey, string(encoded), cacheLength)
+	i.redis.SetEX(ctx, redisKey, string(encoded), cacheLength)
 
 	return user, nil
 }

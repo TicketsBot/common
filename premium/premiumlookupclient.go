@@ -1,6 +1,7 @@
 package premium
 
 import (
+	"context"
 	"github.com/TicketsBot/database"
 	"github.com/go-redis/redis/v8"
 	"github.com/rxdn/gdl/cache"
@@ -9,16 +10,16 @@ import (
 )
 
 type IPremiumLookupClient interface {
-	GetCachedTier(uint64) (CachedTier, error)
-	SetCachedTier(uint64, CachedTier) error
-	DeleteCachedTier(uint64) error
+	GetCachedTier(ctx context.Context, guildId uint64) (CachedTier, error)
+	SetCachedTier(ctx context.Context, guildId uint64, tier CachedTier) error
+	DeleteCachedTier(ctx context.Context, guildId uint64) error
 
-	GetTierByGuild(guild.Guild) (PremiumTier, Source, error)
-	GetTierByGuildId(uint64, bool, string, *ratelimit.Ratelimiter) (PremiumTier, error)
-	GetTierByGuildIdWithSource(uint64, string, *ratelimit.Ratelimiter) (PremiumTier, Source, error)
+	GetTierByGuild(ctx context.Context, guild guild.Guild) (PremiumTier, Source, error)
+	GetTierByGuildId(ctx context.Context, guildId uint64, includeVoting bool, botToken string, rateLimiter *ratelimit.Ratelimiter) (PremiumTier, error)
+	GetTierByGuildIdWithSource(ctx context.Context, guildId uint64, botToken string, rateLimiter *ratelimit.Ratelimiter) (PremiumTier, Source, error)
 
-	GetTierByUser(uint64, bool) (PremiumTier, error)
-	GetTierByUserWithSource(uint64) (PremiumTier, Source, error)
+	GetTierByUser(ctx context.Context, userId uint64, includeVoting bool) (PremiumTier, error)
+	GetTierByUserWithSource(ctx context.Context, userId uint64) (PremiumTier, Source, error)
 }
 
 type PremiumLookupClient struct {
@@ -27,6 +28,8 @@ type PremiumLookupClient struct {
 	cache         *cache.PgCache
 	database      *database.Database
 }
+
+var _ IPremiumLookupClient = (*PremiumLookupClient)(nil)
 
 func NewPremiumLookupClient(patreonClient *PatreonClient, redisClient *redis.Client, cache *cache.PgCache, database *database.Database) *PremiumLookupClient {
 	return &PremiumLookupClient{
