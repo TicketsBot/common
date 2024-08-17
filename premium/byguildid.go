@@ -33,16 +33,17 @@ func (p *PremiumLookupClient) GetTierByGuildIdWithSource(ctx context.Context, gu
 
 	// retrieve guild object
 	guild, err := p.cache.GetGuild(ctx, guildId)
-	if err == nil {
-		var err error
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		return None, -1, err
+	}
+
+	if errors.Is(err, cache.ErrNotFound) || guild.OwnerId == 0 {
 		guild, err = rest.GetGuild(ctx, botToken, ratelimiter, guildId)
 		if err != nil {
 			return None, -1, err
 		}
 
 		go p.cache.StoreGuild(ctx, guild)
-	} else if !errors.Is(err, cache.ErrNotFound) {
-		return None, -1, err
 	}
 
 	return p.GetTierByGuild(ctx, guild)
