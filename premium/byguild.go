@@ -33,7 +33,15 @@ func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Gu
 
 	admins = append(admins, guild.OwnerId)
 
-	// check patreon + votes
+	// check patreon
+	patreonTier, ok, err := p.database.LegacyPremiumEntitlements.GetGuildTier(ctx, guild.Id, guild.OwnerId, PatreonGracePeriod)
+	if err != nil {
+		return None, -1, err
+	} else if ok && PremiumTier(patreonTier) > None {
+		return PremiumTier(patreonTier), SourcePatreon, nil
+	}
+
+	// check votes + whitelabel keys
 	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
 	adminsTier, src, err := p.getTierByUsers(ctx, admins)
 	if err != nil {

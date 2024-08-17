@@ -3,7 +3,7 @@ module github.com/TicketsBot/common
 go 1.22
 
 require (
-	github.com/TicketsBot/database v0.0.0-20240710005219-ca0a96a7b7c5
+	github.com/TicketsBot/database v0.0.0-20240817200342-4ead4bd5d052
 	github.com/getsentry/sentry-go v0.21.0
 	github.com/go-errors/errors v1.4.2
 	github.com/go-redis/redis/v8 v8.11.3

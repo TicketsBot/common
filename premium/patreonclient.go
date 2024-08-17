@@ -15,6 +15,8 @@ type PatreonClient struct {
 	proxyUrl, proxyKey string
 }
 
+const PatreonGracePeriod = time.Hour * 24 * 7
+
 func NewPatreonClient(proxyUrl, proxyKey string) *PatreonClient {
 	return &PatreonClient{
 		httpClient: &http.Client{

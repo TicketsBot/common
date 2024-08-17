@@ -23,19 +23,17 @@ type IPremiumLookupClient interface {
 }
 
 type PremiumLookupClient struct {
-	patreonClient *PatreonClient
-	redis         *redis.Client
-	cache         *cache.PgCache
-	database      *database.Database
+	redis    *redis.Client
+	cache    *cache.PgCache
+	database *database.Database
 }
 
 var _ IPremiumLookupClient = (*PremiumLookupClient)(nil)
 
-func NewPremiumLookupClient(patreonClient *PatreonClient, redisClient *redis.Client, cache *cache.PgCache, database *database.Database) *PremiumLookupClient {
+func NewPremiumLookupClient(redisClient *redis.Client, cache *cache.PgCache, database *database.Database) *PremiumLookupClient {
 	return &PremiumLookupClient{
-		patreonClient: patreonClient,
-		redis:         redisClient,
-		cache:         cache,
-		database:      database,
+		redis:    redisClient,
+		cache:    cache,
+		database: database,
 	}
 }

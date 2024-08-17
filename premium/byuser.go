@@ -41,11 +41,11 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userI
 	}()
 
 	// check patreon
-	patreonTier, err := p.patreonClient.GetTier(ctx, userId)
+	legacyEntitlement, err := p.database.LegacyPremiumEntitlements.GetUserTier(ctx, userId, PatreonGracePeriod)
 	if err != nil {
 		return None, -1, err
-	} else if patreonTier > None {
-		return patreonTier, SourcePatreon, nil
+	} else if legacyEntitlement != nil && PremiumTier(legacyEntitlement.TierId) > None {
+		return PremiumTier(legacyEntitlement.TierId), SourcePatreon, nil
 	}
 
 	// check whitelabel keys
@@ -70,19 +70,6 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userI
 func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint64) (tier PremiumTier, src Source, _err error) {
 	tier = None
 	src = -1
-
-	// check patreon
-	patreonTier, err := p.patreonClient.GetTier(ctx, userIds...)
-	if err != nil {
-		return None, -1, err
-	} else if patreonTier > tier {
-		tier = patreonTier
-		src = SourcePatreon
-	}
-
-	if tier == Whitelabel {
-		return
-	}
 
 	// check whitelabel keys
 	isWhitelabel, err := p.hasWhitelabelKey(ctx, userIds...)
