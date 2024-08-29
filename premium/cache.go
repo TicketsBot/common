@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/TicketsBot/common/model"
 	"time"
 )
 
 type CachedTier struct {
-	Tier   int8   `json:"tier"`
-	Source Source `json:"source"`
+	Tier   int8                    `json:"tier"`
+	Source model.EntitlementSource `json:"source"`
 }
 
 const timeout = time.Minute * 5
