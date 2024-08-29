@@ -59,7 +59,7 @@ type WhitelabelSkuData struct {
 
 type GuildEntitlementEntry struct {
 	Id          uuid.UUID         `json:"id"`
-	UserId      uint64            `json:"user_id"`
+	UserId      *uint64           `json:"user_id"`
 	Source      EntitlementSource `json:"source"`
 	ExpiresAt   *time.Time        `json:"expires_at"`
 	SkuId       uuid.UUID         `json:"sku_id"`
