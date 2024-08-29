@@ -2,6 +2,7 @@ package premium
 
 import (
 	"context"
+	"github.com/TicketsBot/common/model"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -11,21 +12,21 @@ func (p *PremiumLookupClient) GetTierByUser(ctx context.Context, userId uint64, 
 		return None, err
 	}
 
-	if source == SourceVoting && !includeVoting {
+	if source == model.EntitlementSourceVoting && !includeVoting {
 		return None, nil
 	}
 
 	return tier, nil
 }
 
-func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userId uint64) (_tier PremiumTier, _src Source, _err error) {
+func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userId uint64) (_tier PremiumTier, _src model.EntitlementSource, _err error) {
 	_tier = None
-	_src = -1
+	_src = ""
 
 	// check for cached result
 	cached, err := p.GetCachedTier(ctx, userId)
 	if err != nil && err != redis.Nil {
-		return None, -1, err
+		return None, "", err
 	} else if err == nil {
 		return PremiumTier(cached.Tier), cached.Source, nil
 	}
@@ -40,52 +41,54 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userI
 		}
 	}()
 
-	// check patreon
-	legacyEntitlement, err := p.database.LegacyPremiumEntitlements.GetUserTier(ctx, userId, PatreonGracePeriod)
+	// check entitlements db
+	subscriptions, err := p.database.Entitlements.ListUserSubscriptions(ctx, userId, GracePeriod)
 	if err != nil {
-		return None, -1, err
-	} else if legacyEntitlement != nil && PremiumTier(legacyEntitlement.TierId) > None {
-		return PremiumTier(legacyEntitlement.TierId), SourcePatreon, nil
+		return None, "", err
+	}
+
+	if maxSubscription := findMaxTier(subscriptions); maxSubscription != nil {
+		return TierFromEntitlement(maxSubscription.Tier), maxSubscription.Source, nil
 	}
 
 	// check whitelabel keys
 	isWhitelabel, err := p.hasWhitelabelKey(ctx, userId)
 	if err != nil {
-		return None, -1, err
+		return None, "", err
 	} else if isWhitelabel {
-		return Whitelabel, SourceWhitelabelKey, nil
+		return Whitelabel, model.EntitlementSourceKey, nil
 	}
 
 	// check for votes
 	votingTier, err := p.hasVoted(ctx, userId)
 	if err != nil {
-		return None, -1, err
+		return None, "", err
 	} else if votingTier > None {
-		return votingTier, SourceVoting, nil
+		return votingTier, model.EntitlementSourceVoting, nil
 	}
 
-	return None, -1, nil
+	return None, "", nil
 }
 
-func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint64) (tier PremiumTier, src Source, _err error) {
+func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint64) (tier PremiumTier, src model.EntitlementSource, _err error) {
 	tier = None
-	src = -1
+	src = ""
 
 	// check whitelabel keys
 	isWhitelabel, err := p.hasWhitelabelKey(ctx, userIds...)
 	if err != nil {
-		return None, -1, err
+		return None, "", err
 	} else if isWhitelabel {
-		return Whitelabel, SourceWhitelabelKey, nil
+		return Whitelabel, model.EntitlementSourceKey, nil
 	}
 	// check for votes
 	// we can skip here if already premium
 	if tier == None {
 		votingTier, err := p.hasVoted(ctx, userIds...)
 		if err != nil {
-			return None, -1, err
+			return None, "", err
 		} else if votingTier > tier {
-			return votingTier, SourceVoting, nil
+			return votingTier, model.EntitlementSourceVoting, nil
 		}
 	}
 

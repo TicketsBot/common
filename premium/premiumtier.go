@@ -1,5 +1,7 @@
 package premium
 
+import "github.com/TicketsBot/common/model"
+
 type PremiumTier int8
 
 const (
@@ -32,3 +34,13 @@ func (t PremiumTier) String() string {
 	}
 }
 
+func TierFromEntitlement(tier model.EntitlementTier) PremiumTier {
+	switch tier {
+	case model.EntitlementTierPremium:
+		return Premium
+	case model.EntitlementTierWhitelabel:
+		return Whitelabel
+	default:
+		return None
+	}
+}

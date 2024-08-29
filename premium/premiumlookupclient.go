@@ -2,6 +2,7 @@ package premium
 
 import (
 	"context"
+	"github.com/TicketsBot/common/model"
 	"github.com/TicketsBot/database"
 	"github.com/go-redis/redis/v8"
 	"github.com/rxdn/gdl/cache"
@@ -14,12 +15,12 @@ type IPremiumLookupClient interface {
 	SetCachedTier(ctx context.Context, guildId uint64, tier CachedTier) error
 	DeleteCachedTier(ctx context.Context, guildId uint64) error
 
-	GetTierByGuild(ctx context.Context, guild guild.Guild) (PremiumTier, Source, error)
+	GetTierByGuild(ctx context.Context, guild guild.Guild) (PremiumTier, model.EntitlementSource, error)
 	GetTierByGuildId(ctx context.Context, guildId uint64, includeVoting bool, botToken string, rateLimiter *ratelimit.Ratelimiter) (PremiumTier, error)
-	GetTierByGuildIdWithSource(ctx context.Context, guildId uint64, botToken string, rateLimiter *ratelimit.Ratelimiter) (PremiumTier, Source, error)
+	GetTierByGuildIdWithSource(ctx context.Context, guildId uint64, botToken string, rateLimiter *ratelimit.Ratelimiter) (PremiumTier, model.EntitlementSource, error)
 
 	GetTierByUser(ctx context.Context, userId uint64, includeVoting bool) (PremiumTier, error)
-	GetTierByUserWithSource(ctx context.Context, userId uint64) (PremiumTier, Source, error)
+	GetTierByUserWithSource(ctx context.Context, userId uint64) (PremiumTier, model.EntitlementSource, error)
 }
 
 type PremiumLookupClient struct {

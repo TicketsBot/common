@@ -15,6 +15,10 @@ github.com/TicketsBot/database v0.0.0-20240817225553-a3ec4b8c7442 h1:AePURXth36s
 github.com/TicketsBot/database v0.0.0-20240817225553-a3ec4b8c7442/go.mod h1:gAtOoQKZfCkQ4AoNWQUSl51Fnlqk+odzD/hZ1e1sXyI=
 github.com/TicketsBot/database v0.0.0-20240817232910-636752476fbb h1:/Gf2JIPMEhddsWKnexJU6z10bF0i5UcwSWoh1k1FqS8=
 github.com/TicketsBot/database v0.0.0-20240817232910-636752476fbb/go.mod h1:gAtOoQKZfCkQ4AoNWQUSl51Fnlqk+odzD/hZ1e1sXyI=
+github.com/TicketsBot/database v0.0.0-20240829095137-f2833d5270f4 h1:b90NqIL+JnYN1iphDKFPnXEwKpDYGy+5Wt0FEVXaIEw=
+github.com/TicketsBot/database v0.0.0-20240829095137-f2833d5270f4/go.mod h1:76LeVd5vxgSk0yg/TVtyaNBepfYpWgSqI41wuxNrgvQ=
+github.com/TicketsBot/database v0.0.0-20240829100828-64014bc5d6bc h1:kgAOQzPA/7xau5ptujVbDt4Oqrdli5BBeSORmhEYlyc=
+github.com/TicketsBot/database v0.0.0-20240829100828-64014bc5d6bc/go.mod h1:76LeVd5vxgSk0yg/TVtyaNBepfYpWgSqI41wuxNrgvQ=
 github.com/TicketsBot/ttlcache v1.6.1-0.20200405150101-acc18e37b261 h1:NHD5GB6cjlkpZFjC76Yli2S63/J2nhr8MuE6KlYJpQM=
 github.com/TicketsBot/ttlcache v1.6.1-0.20200405150101-acc18e37b261/go.mod h1:2zPxDAN2TAPpxUPjxszjs3QFKreKrQh5al/R3cMXmYk=
 github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
@@ -69,6 +73,8 @@ github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
 github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
