@@ -45,7 +45,7 @@ const (
 )
 
 type SubscriptionSku struct {
-	SkuId    uuid.UUID       `json:"sku_id"`
+	Sku
 	Tier     EntitlementTier `json:"tier"`
 	Priority int32           `json:"priority"`
 	IsGlobal bool            `json:"is_global"`
