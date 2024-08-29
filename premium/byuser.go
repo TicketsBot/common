@@ -51,14 +51,6 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userI
 		return TierFromEntitlement(maxSubscription.Tier), maxSubscription.Source, nil
 	}
 
-	// check whitelabel keys
-	isWhitelabel, err := p.hasWhitelabelKey(ctx, userId)
-	if err != nil {
-		return None, "", err
-	} else if isWhitelabel {
-		return Whitelabel, model.EntitlementSourceKey, nil
-	}
-
 	// check for votes
 	votingTier, err := p.hasVoted(ctx, userId)
 	if err != nil {
@@ -74,13 +66,6 @@ func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint
 	tier = None
 	src = ""
 
-	// check whitelabel keys
-	isWhitelabel, err := p.hasWhitelabelKey(ctx, userIds...)
-	if err != nil {
-		return None, "", err
-	} else if isWhitelabel {
-		return Whitelabel, model.EntitlementSourceKey, nil
-	}
 	// check for votes
 	// we can skip here if already premium
 	if tier == None {
@@ -106,8 +91,4 @@ func (p *PremiumLookupClient) hasVoted(ctx context.Context, userIds ...uint64) (
 	} else {
 		return None, err
 	}
-}
-
-func (p *PremiumLookupClient) hasWhitelabelKey(ctx context.Context, userIds ...uint64) (bool, error) {
-	return p.database.WhitelabelUsers.AnyPremium(ctx, userIds)
 }

@@ -56,27 +56,7 @@ func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Gu
 		return adminsTier, src, nil
 	}
 
-	keyTier, err := p.hasKey(ctx, guild.Id)
-	if err != nil {
-		return None, "", err
-	} else if keyTier > None {
-		return keyTier, model.EntitlementSourceKey, nil
-	}
-
 	return None, "", nil
-}
-
-func (p *PremiumLookupClient) hasKey(ctx context.Context, guildId uint64) (PremiumTier, error) {
-	isPremium, err := p.database.PremiumGuilds.IsPremium(ctx, guildId)
-	if err != nil {
-		return None, err
-	}
-
-	if isPremium {
-		return Premium, nil
-	} else {
-		return None, nil
-	}
 }
 
 func findMaxTier(subscriptions []model.GuildEntitlementEntry) *model.GuildEntitlementEntry {
