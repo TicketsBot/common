@@ -30,13 +30,6 @@ func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Gu
 		}
 	}()
 
-	admins, err := p.database.Permissions.GetAdmins(ctx, guild.Id)
-	if err != nil {
-		return None, "", err
-	}
-
-	admins = append(admins, guild.OwnerId)
-
 	// check entitlements db
 	subscriptions, err := p.database.Entitlements.ListGuildSubscriptions(ctx, guild.Id, guild.OwnerId, GracePeriod)
 	if err != nil {
@@ -45,15 +38,6 @@ func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Gu
 
 	if maxSubscription := findMaxTier(subscriptions); maxSubscription != nil {
 		return TierFromEntitlement(maxSubscription.Tier), maxSubscription.Source, nil
-	}
-
-	// check votes + whitelabel keys
-	// key lookup cannot be whitelabel, therefore we don't need to do key lookup if patreon is regular premium or higher
-	adminsTier, src, err := p.getTierByUsers(ctx, admins)
-	if err != nil {
-		return None, "", err
-	} else if adminsTier > None {
-		return adminsTier, src, nil
 	}
 
 	return None, "", nil

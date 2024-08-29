@@ -51,44 +51,5 @@ func (p *PremiumLookupClient) GetTierByUserWithSource(ctx context.Context, userI
 		return TierFromEntitlement(maxSubscription.Tier), maxSubscription.Source, nil
 	}
 
-	// check for votes
-	votingTier, err := p.hasVoted(ctx, userId)
-	if err != nil {
-		return None, "", err
-	} else if votingTier > None {
-		return votingTier, model.EntitlementSourceVoting, nil
-	}
-
 	return None, "", nil
-}
-
-func (p *PremiumLookupClient) getTierByUsers(ctx context.Context, userIds []uint64) (tier PremiumTier, src model.EntitlementSource, _err error) {
-	tier = None
-	src = ""
-
-	// check for votes
-	// we can skip here if already premium
-	if tier == None {
-		votingTier, err := p.hasVoted(ctx, userIds...)
-		if err != nil {
-			return None, "", err
-		} else if votingTier > tier {
-			return votingTier, model.EntitlementSourceVoting, nil
-		}
-	}
-
-	return
-}
-
-func (p *PremiumLookupClient) hasVoted(ctx context.Context, userIds ...uint64) (PremiumTier, error) {
-	isPremium, err := p.database.Votes.Any(ctx, userIds...)
-	if err != nil {
-		return None, err
-	}
-
-	if isPremium {
-		return Premium, nil
-	} else {
-		return None, err
-	}
 }
