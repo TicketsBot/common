@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const GracePeriod = time.Hour * 24 // TODO: Reduce this to zero?
+const GracePeriod = time.Hour // TODO: Reduce this to zero?
 
 func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Guild) (_tier PremiumTier, _src model.EntitlementSource, _err error) {
 	_tier = None
