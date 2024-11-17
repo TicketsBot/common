@@ -31,7 +31,9 @@ func (p *PremiumLookupClient) GetTierByGuild(ctx context.Context, guild guild.Gu
 	}()
 
 	// check entitlements db
-	subscriptions, err := p.database.Entitlements.ListGuildSubscriptions(ctx, guild.Id, guild.OwnerId, GracePeriod)
+	subscriptions, err := sentry.WithSpan2(ctx, "ListGuildSubscriptions", func(span *sentry.Span) ([]model.GuildEntitlementEntry, error) {
+		return p.database.Entitlements.ListGuildSubscriptions(ctx, guild.Id, guild.OwnerId, GracePeriod)
+	})
 	if err != nil {
 		return None, "", err
 	}

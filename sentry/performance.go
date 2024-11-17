@@ -34,3 +34,10 @@ func WithSpan2[T any, U any](ctx context.Context, operation string, f func(span 
 	span.Finish()
 	return r1, r2
 }
+
+func WithSpan3[T any, U any, V any](ctx context.Context, operation string, f func(span *sentry.Span) (T, U, V)) (T, U, V) {
+	span := sentry.StartSpan(ctx, operation)
+	r1, r2, r3 := f(span)
+	span.Finish()
+	return r1, r2, r3
+}
